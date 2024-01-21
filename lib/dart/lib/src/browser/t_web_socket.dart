@@ -63,8 +63,7 @@ class TWebSocket implements TSocket {
   @override
   Future<void> open() async {
     if (!isClosed) {
-      throw TTransportError(
-          TTransportErrorType.ALREADY_OPEN, 'Socket already connected');
+      throw TTransportError(TTransportErrorType.ALREADY_OPEN, 'Socket already connected');
     }
 
     _socket = WebSocket(url.toString());
@@ -102,8 +101,7 @@ class TWebSocket implements TSocket {
   void _onClose(CloseEvent event) {
     _socket = WebSocket('');
     if (_requests.isNotEmpty) {
-      _onErrorController
-          .add(StateError('Socket was closed with pending requests'));
+      _onErrorController.add(StateError('Socket was closed with pending requests'));
     }
     _requests.clear();
     _onStateController.add(TSocketState.CLOSED);
@@ -115,8 +113,7 @@ class TWebSocket implements TSocket {
           Uint8List.fromList(base64.decode(message.data as String));
       _onMessageController.add(data);
     } on FormatException catch (_) {
-      var error = TProtocolError(TProtocolErrorType.INVALID_DATA,
-          "Expected a Base 64 encoded string.");
+      var error = TProtocolError(TProtocolErrorType.INVALID_DATA, "Expected a Base 64 encoded string.");
       _onErrorController.add(error);
     }
   }
