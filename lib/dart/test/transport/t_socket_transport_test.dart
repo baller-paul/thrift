@@ -23,6 +23,13 @@ import 'dart:typed_data' show Uint8List;
 
 import 'package:mockito/mockito.dart';
 import 'package:test/test.dart';
+import 'package:thrift/src/protocol/t_message.dart';
+import 'package:thrift/src/protocol/t_protocol.dart';
+import 'package:thrift/src/protocol/t_protocol_factory.dart';
+import 'package:thrift/src/transport/t_framed_transport.dart';
+import 'package:thrift/src/transport/t_message_reader.dart';
+import 'package:thrift/src/transport/t_socket_transport.dart';
+import 'package:thrift/src/transport/t_transport.dart';
 import 'package:thrift/thrift.dart';
 
 void main() {
@@ -87,7 +94,7 @@ void main() {
     });
 
     test('Test client sending data over framed transport', () async {
-      String? bufferText;
+      String bufferText = "";
 
       Future responseReady = transport.flush().then((_) {
         var buffer = Uint8List(responseBytes.length);
@@ -120,7 +127,7 @@ void main() {
     });
 
     test('Test response correlates to correct request', () async {
-      String? bufferText;
+      String bufferText = "";
 
       Future responseReady = transport.flush().then((_) {
         var buffer = Uint8List(responseBytes.length);
@@ -246,7 +253,7 @@ class FakeSocket extends TSocket {
         _onErrorController = StreamController.broadcast(sync: sync),
         _onMessageController = StreamController.broadcast(sync: sync);
 
-  late bool _isOpen;
+  bool _isOpen = false;
 
   @override
   bool get isOpen => _isOpen;
@@ -266,7 +273,7 @@ class FakeSocket extends TSocket {
     _onStateController.add(TSocketState.CLOSED);
   }
 
-  late Uint8List _sendPayload;
+  Uint8List _sendPayload = Uint8List(0);
   Uint8List get sendPayload => _sendPayload;
 
   @override
@@ -287,10 +294,11 @@ class FakeSocket extends TSocket {
 class FakeProtocolFactory implements TProtocolFactory {
   FakeProtocolFactory();
 
-  TMessage? message;
+  // Paul here - I added this constructor to make it compile
+  TMessage message = TMessage("", TMessageType.CALL, 0 /* seqid */);
 
   @override
-  getProtocol(TTransport transport) => FakeProtocol(message ?? TMessage("null", 0, 0));
+  getProtocol(TTransport transport) => FakeProtocol(message);
 }
 
 class FakeProtocol extends Mock implements TProtocol {

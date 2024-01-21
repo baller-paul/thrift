@@ -18,15 +18,11 @@
 library thrift.test.transport.t_socket_transport_test;
 
 import 'dart:async';
-import 'dart:convert' show Encoding;
-import 'dart:convert' show Utf8Codec;
-import 'dart:convert' show base64;
+import 'dart:convert' show Encoding, Utf8Codec, base64;
 import 'dart:typed_data' show Uint8List;
 
-import 'package:http/http.dart' show BaseRequest;
-import 'package:http/http.dart' show Client;
-import 'package:http/http.dart' show Response;
-import 'package:http/http.dart' show StreamedResponse;
+import 'package:http/http.dart'
+    show BaseRequest, Client, Response, StreamedResponse;
 import 'package:test/test.dart';
 import 'package:thrift/thrift.dart';
 
@@ -47,13 +43,13 @@ void main() {
       var expectedText = 'my request';
       transport.writeAll(utf8Codec.encode(expectedText));
 
-      expect(client.postRequest, isEmpty);
+      expect(client.postRequest, isNull);
 
       await transport.flush();
 
-      expect(client.postRequest, isNotEmpty);
+      expect(client.postRequest, isNotNull);
 
-      var requestText = utf8Codec.decode(base64.decode(client.postRequest));
+      var requestText = utf8Codec.decode(base64.decode(client.postRequest!));
       expect(requestText, expectedText);
     });
 
@@ -88,7 +84,7 @@ void main() {
     });
 
     test('Test read correct buffer after flush', () async {
-      late String bufferText;
+      String bufferText = "";
       var expectedText = 'response 1';
       var expectedBytes = utf8Codec.encode(expectedText);
 
@@ -115,17 +111,18 @@ void main() {
 }
 
 class FakeHttpClient implements Client {
-  String postResponse = '';
-  String postRequest = '';
+  String? postResponse;
+  String? postRequest;
 
   final bool sync;
 
-  FakeHttpClient({this.sync = false});
+  FakeHttpClient({required this.sync});
 
   @override
-  Future<Response> post(url, {Map<String, String>? headers, Object? body, Encoding? encoding}) {
-    postRequest = body.toString();
-    var response = Response(postResponse, 200);
+  Future<Response> post(url,
+      {Map<String, String>? headers, body, Encoding? encoding}) {
+    postRequest = body as String?;
+    var response = Response(postResponse!, 200);
 
     if (sync) {
       return Future.sync(() => response);
@@ -135,25 +132,35 @@ class FakeHttpClient implements Client {
   }
 
   @override
-  Future<Response> head(url, {Map<String, String>? headers}) => throw UnimplementedError();
+  Future<Response> head(url, {Map<String, String>? headers}) =>
+      throw UnimplementedError();
 
   @override
-  Future<Response> get(url, {Map<String, String>? headers}) => throw UnimplementedError();
+  Future<Response> get(url, {Map<String, String>? headers}) =>
+      throw UnimplementedError();
 
   @override
-  Future<Response> put(url, {Map<String, String>? headers, body, Encoding? encoding}) => throw UnimplementedError();
+  Future<Response> put(url,
+          {Map<String, String>? headers, body, Encoding? encoding}) =>
+      throw UnimplementedError();
 
   @override
-  Future<Response> patch(url, {Map<String, String>? headers, body, Encoding? encoding}) => throw UnimplementedError();
+  Future<Response> patch(url,
+          {Map<String, String>? headers, body, Encoding? encoding}) =>
+      throw UnimplementedError();
 
   @override
-  Future<Response> delete(url, {Map<String, String>? headers, Object? body, Encoding? encoding}) => throw UnimplementedError();
+  Future<Response> delete(Uri url,
+          {Map<String, String>? headers, Object? body, Encoding? encoding}) =>
+      throw UnimplementedError();
 
   @override
-  Future<String> read(url, {Map<String, String>? headers, Object? body, Encoding? encoding}) => throw UnimplementedError();
+  Future<String> read(url, {Map<String, String>? headers}) =>
+      throw UnimplementedError();
 
   @override
-  Future<Uint8List> readBytes(url, {Map<String, String>? headers}) => throw UnimplementedError();
+  Future<Uint8List> readBytes(url, {Map<String, String>? headers}) =>
+      throw UnimplementedError();
 
   @override
   Future<StreamedResponse> send(BaseRequest request) => throw UnimplementedError();

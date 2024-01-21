@@ -19,6 +19,7 @@
 
 library thrift.test.serializer.serializer_test;
 
+import 'package:thrift/src/protocol/t_protocol.dart';
 import 'package:thrift/thrift.dart';
 
 /// TestTObject is a simple test struct
@@ -30,15 +31,15 @@ class TestTObject implements TBase {
   static final TField _L_FIELD_DESC = TField("l", TType.LIST, 4);
   static final TField _B_FIELD_DESC = TField("b", TType.BOOL, 5);
 
-  late int _i;
+  int? _i;
   static const int I = 1;
-  late double _d;
+  double? _d;
   static const int D = 2;
-  late String? _s;
+  String? _s;
   static const int S = 3;
-  List<String>? l;
+  List<String>? _l;
   static const int L = 4;
-  late bool _b;
+  bool? _b;
   static const int B = 5;
 
   bool __isset_i = false;
@@ -48,9 +49,9 @@ class TestTObject implements TBase {
   TestTObject();
 
   // i
-  int get i => this._i;
+  int? get i => this._i;
 
-  set i(int i) {
+  set i(int? i) {
     this._i = i;
     this.__isset_i = true;
   }
@@ -62,9 +63,9 @@ class TestTObject implements TBase {
   }
 
   // d
-  double get d => this._d;
+  double? get d => this._d;
 
-  set d(double d) {
+  set d(double? d) {
     this._d = d;
     this.__isset_d = true;
   }
@@ -89,6 +90,11 @@ class TestTObject implements TBase {
   }
 
   // l
+  List<String>? get l => this._l;
+
+  set l(List<String>? l) {
+    this._l = l;
+  }
 
   bool isSetL() => this.l != null;
 
@@ -97,9 +103,9 @@ class TestTObject implements TBase {
   }
 
   // b
-  bool get b => this._b;
+  bool? get b => this._b;
 
-  set b(bool b) {
+  set b(bool? b) {
     this._b = b;
     this.__isset_b = true;
   }
@@ -176,7 +182,7 @@ class TestTObject implements TBase {
     }
   }
 
-  // Returns true if field corresponding to fieldID is set (has been assigned a value) and false otherwise
+  // Returns true if the field corresponding to fieldID is set (has been assigned a value) and false otherwise
   @override
   bool isSet(int fieldID) {
     switch (fieldID) {
@@ -232,7 +238,7 @@ class TestTObject implements TBase {
           if (field.type == TType.LIST) {
             {
               TList _list74 = iprot.readListBegin();
-              this.l = [] as List<String>;
+              this.l = <String>[];
               for (int _i75 = 0; _i75 < _list74.length; ++_i75) {
                 String _elem76;
                 _elem76 = iprot.readString();
@@ -270,10 +276,10 @@ class TestTObject implements TBase {
 
     oprot.writeStructBegin(_STRUCT_DESC);
     oprot.writeFieldBegin(_I_FIELD_DESC);
-    oprot.writeI32(this.i);
+    oprot.writeI32(this.i!);
     oprot.writeFieldEnd();
     oprot.writeFieldBegin(_D_FIELD_DESC);
-    oprot.writeDouble(this.d);
+    oprot.writeDouble(this.d!);
     oprot.writeFieldEnd();
     if (this.s != null) {
       oprot.writeFieldBegin(_S_FIELD_DESC);
@@ -292,7 +298,7 @@ class TestTObject implements TBase {
       oprot.writeFieldEnd();
     }
     oprot.writeFieldBegin(_B_FIELD_DESC);
-    oprot.writeBool(this.b);
+    oprot.writeBool(this.b!);
     oprot.writeFieldEnd();
     oprot.writeFieldStop();
     oprot.writeStructEnd();

@@ -15,7 +15,8 @@
 /// specific language governing permissions and limitations
 /// under the License.
 
-part of thrift;
+import "../transport/t_transport.dart";
+import "../protocol/t_protocol.dart";
 
 abstract class TProtocolFactory<T extends TProtocol> {
   T getProtocol(TTransport transport);

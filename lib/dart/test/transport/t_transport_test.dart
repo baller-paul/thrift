@@ -18,16 +18,24 @@
 library thrift.test.transport.t_socket_transport_test;
 
 import 'package:test/test.dart';
-import 'package:thrift/thrift.dart';
+import 'package:thrift/src/transport/t_buffered_transport.dart';
+import 'package:thrift/src/transport/t_transport.dart';
+import 'package:thrift/src/transport/t_transport_factory.dart';
 
 /// Common transport tests
 void main() {
   group('TTransportFactory', () {
     test('transport is returned from base factory', () async {
-      late TTransport result;
-      late TTransport transport;
+      // Paul here - I made these nullable
+      TTransport? result;
+      TTransport? transport;
 
       var factory = TTransportFactory();
+
+      result = await factory
+          .getTransport(transport!); // Assuming transport can be null
+      expect(result, isNull);
+
       transport = TBufferedTransport();
 
       result = await factory.getTransport(transport);

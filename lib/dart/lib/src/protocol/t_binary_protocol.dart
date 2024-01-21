@@ -15,13 +15,20 @@
 /// specific language governing permissions and limitations
 /// under the License.
 
-part of thrift;
+import 'dart:convert';
+import 'dart:typed_data';
+
+import 'package:thrift/src/protocol/t_message.dart';
+import 'package:thrift/src/protocol/t_protocol.dart';
+import 'package:thrift/src/transport/t_transport.dart';
+import 'package:thrift/src/protocol/t_protocol_factory.dart';
+import 'package:thrift/thrift.dart';
 
 class TBinaryProtocolFactory implements TProtocolFactory<TBinaryProtocol> {
-  TBinaryProtocolFactory({this.strictRead = false, this.strictWrite = true});
-
   final bool strictRead;
   final bool strictWrite;
+
+  TBinaryProtocolFactory({this.strictRead = false, this.strictWrite = true});
 
   @override
   TBinaryProtocol getProtocol(TTransport transport) {
@@ -30,9 +37,6 @@ class TBinaryProtocolFactory implements TProtocolFactory<TBinaryProtocol> {
   }
 }
 
-/// Binary protocol implementation for Thrift.
-///
-/// Adapted from the C# version.
 class TBinaryProtocol extends TProtocol {
   static const int VERSION_MASK = 0xffff0000;
   static const int VERSION_1 = 0x80010000;
@@ -46,7 +50,6 @@ class TBinaryProtocol extends TProtocol {
       {this.strictRead = false, this.strictWrite = true})
       : super(transport);
 
-  /// write
   @override
   void writeMessageBegin(TMessage message) {
     if (strictWrite) {
@@ -113,16 +116,14 @@ class TBinaryProtocol extends TProtocol {
   void writeSetEnd() {}
 
   @override
-  void writeBool(bool? b) {
-    if (b == null) b = false;
+  void writeBool(bool b) {
     writeByte(b ? 1 : 0);
   }
 
   final ByteData _byteOut = ByteData(1);
 
   @override
-  void writeByte(int? byte) {
-    if (byte == null) byte = 0;
+  void writeByte(int byte) {
     _byteOut.setUint8(0, byte);
     transport.write(_byteOut.buffer.asUint8List(), 0, 1);
   }
@@ -130,8 +131,7 @@ class TBinaryProtocol extends TProtocol {
   final ByteData _i16Out = ByteData(2);
 
   @override
-  void writeI16(int? i16) {
-    if (i16 == null) i16 = 0;
+  void writeI16(int i16) {
     _i16Out.setInt16(0, i16);
     transport.write(_i16Out.buffer.asUint8List(), 0, 2);
   }
@@ -139,8 +139,7 @@ class TBinaryProtocol extends TProtocol {
   final ByteData _i32Out = ByteData(4);
 
   @override
-  void writeI32(int? i32) {
-    if (i32 == null) i32 = 0;
+  void writeI32(int i32) {
     _i32Out.setInt32(0, i32);
     transport.write(_i32Out.buffer.asUint8List(), 0, 4);
   }
@@ -148,19 +147,20 @@ class TBinaryProtocol extends TProtocol {
   final Uint8List _i64Out = Uint8List(8);
 
   @override
-  void writeI64(int? i64) {
-    if (i64 == null) i64 = 0;
-    var i = Int64(i64);
-    var bts = i.toBytes();
+  void writeI64(int i64) {
+    ByteData byteData = ByteData(8);
+    byteData.setInt64(0, i64, Endian.big);
+
+    // Paulified. TODO: Test this.
     for (var j = 0; j < 8; j++) {
-      _i64Out[j] = bts[8 - j - 1];
+      _i64Out[j] = byteData.getInt8(8 - j - 1);
     }
     transport.write(_i64Out, 0, 8);
   }
 
   @override
-  void writeString(String? s) {
-    var bytes = s != null ? _utf8Codec.encode(s) : Uint8List.fromList([]);
+  void writeString(String s) {
+    var bytes = _utf8Codec.encode(s);
     writeI32(bytes.length);
     transport.write(bytes, 0, bytes.length);
   }
@@ -168,8 +168,7 @@ class TBinaryProtocol extends TProtocol {
   final ByteData _doubleOut = ByteData(8);
 
   @override
-  void writeDouble(double? d) {
-    if (d == null) d = 0.0;
+  void writeDouble(double d) {
     _doubleOut.setFloat64(0, d);
     transport.write(_doubleOut.buffer.asUint8List(), 0, 8);
   }
@@ -181,7 +180,6 @@ class TBinaryProtocol extends TProtocol {
     transport.write(bytes, 0, length);
   }
 
-  /// read
   @override
   TMessage readMessageBegin() {
     String name;
@@ -299,8 +297,10 @@ class TBinaryProtocol extends TProtocol {
   @override
   int readI64() {
     transport.readAll(_i64In, 0, 8);
-    var i = Int64.fromBytesBigEndian(_i64In);
-    return i.toInt();
+    // var i = Int64.fromBytesBigEndian(_i64In);
+    ByteData byteData = ByteData.sublistView(_i64In);
+    int i = byteData.getInt64(0, Endian.big);
+    return i;
   }
 
   final Uint8List _doubleIn = Uint8List(8);

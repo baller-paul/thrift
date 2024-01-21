@@ -15,7 +15,11 @@
 /// specific language governing permissions and limitations
 /// under the License.
 
-part of thrift;
+import 'dart:typed_data';
+
+import 'package:thrift/src/protocol/t_message.dart';
+import 'package:thrift/src/transport/t_transport.dart';
+import 'package:thrift/thrift.dart';
 
 abstract class TProtocol {
   final TTransport transport;

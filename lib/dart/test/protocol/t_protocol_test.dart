@@ -22,6 +22,12 @@ import 'dart:convert' show utf8;
 import 'dart:typed_data' show Uint8List;
 
 import 'package:test/test.dart';
+import 'package:thrift/src/protocol/t_binary_protocol.dart';
+import 'package:thrift/src/protocol/t_compact_protocol.dart';
+import 'package:thrift/src/protocol/t_json_protocol.dart';
+import 'package:thrift/src/protocol/t_message.dart';
+import 'package:thrift/src/protocol/t_protocol.dart';
+import 'package:thrift/src/transport/t_buffered_transport.dart';
 import 'package:thrift/thrift.dart';
 
 void main() {
@@ -32,32 +38,60 @@ void main() {
   Primitive getPrimitive(int tType) {
     switch (tType) {
       case TType.BOOL:
-        return Primitive(protocol.readBool, protocol.writeBool, false);
+        return Primitive(
+          () => protocol.readBool(),
+          (dynamic value) => protocol.writeBool(value as bool),
+          false,
+        );
 
       case TType.BYTE:
-        return Primitive(protocol.readByte, protocol.writeByte, 0);
+        return Primitive(
+          () => protocol.readByte(),
+          (dynamic value) => protocol.writeByte(value as int),
+          0,
+        );
 
       case TType.I16:
-        return Primitive(protocol.readI16, protocol.writeI16, 0);
+        return Primitive(
+          () => protocol.readI16(),
+          (dynamic value) => protocol.writeI16(value as int),
+          0,
+        );
 
       case TType.I32:
-        return Primitive(protocol.readI32, protocol.writeI32, 0);
+        return Primitive(
+          () => protocol.readI32(),
+          (dynamic value) => protocol.writeI32(value as int),
+          0,
+        );
 
       case TType.I64:
-        return Primitive(protocol.readI64, protocol.writeI64, 0);
+        return Primitive(
+          () => protocol.readI64(),
+          (dynamic value) => protocol.writeI64(value as int),
+          0,
+        );
 
       case TType.DOUBLE:
-        return Primitive(protocol.readDouble, protocol.writeDouble, 0);
+        return Primitive(
+          () => protocol.readDouble(),
+          (dynamic value) => protocol.writeDouble(value as double),
+          0,
+        );
 
       case TType.STRING:
-        return Primitive(protocol.readString, protocol.writeString, '');
+        return Primitive(
+          () => protocol.readString(),
+          (dynamic value) => protocol.writeString(value as String),
+          '',
+        );
 
       default:
         throw UnsupportedError("Unsupported TType $tType");
     }
   }
 
-  Future primitiveTest(Primitive primitive, input) async {
+  Future<void> primitiveTest(Primitive primitive, input) async {
     primitive.write(input);
     protocol.writeMessageEnd();
 
@@ -69,7 +103,7 @@ void main() {
     expect(output, input);
   }
 
-  Future primitiveNullTest(Primitive primitive) async {
+  Future<void> primitiveNullTest(Primitive primitive) async {
     primitive.write(null);
     protocol.writeMessageEnd();
 
@@ -397,10 +431,10 @@ void main() {
   });
 }
 
-class Primitive {
-  final Function read;
-  final Function write;
-  final defaultValue;
+class Primitive<T> {
+  final T Function() read;
+  final void Function(T) write;
+  final T defaultValue;
 
   Primitive(this.read, this.write, this.defaultValue);
 }
