@@ -15,9 +15,12 @@
 /// specific language governing permissions and limitations
 /// under the License.
 
-part of thrift;
-
 /// Adapted from the C# version.
+
+import 'package:thrift/thrift.dart';
+import 'package:thrift/src/protocol/t_message.dart';
+import 'package:thrift/src/protocol/t_protocol.dart';
+
 class TMultiplexedProtocol extends TProtocolDecorator {
   static const SEPARATOR = ':';
 
@@ -25,11 +28,7 @@ class TMultiplexedProtocol extends TProtocolDecorator {
 
   TMultiplexedProtocol(TProtocol protocol, String serviceName)
       : _serviceName = serviceName,
-        super(protocol) {
-    if (serviceName == null) {
-      throw ArgumentError.notNull("serviceName");
-    }
-  }
+        super(protocol);
 
   @override
   void writeMessageBegin(TMessage message) {

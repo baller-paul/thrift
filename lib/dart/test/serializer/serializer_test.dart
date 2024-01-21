@@ -20,14 +20,18 @@
 library thrift.test.serializer.serializer_test;
 
 import 'package:test/test.dart';
-import 'package:thrift/thrift.dart';
+import 'package:thrift/src/protocol/t_binary_protocol.dart';
+import 'package:thrift/src/protocol/t_compact_protocol.dart';
+import 'package:thrift/src/protocol/t_json_protocol.dart';
+import 'package:thrift/src/serializer/t_deserializer.dart';
+import 'package:thrift/src/serializer/t_serializer.dart';
 import 'serializer_test_data.dart';
 
 void main() {
   var serializer = () {
-    TDeserializer deserializer;
-    TSerializer serializer;
-    TestTObject testTObject;
+    TDeserializer deserializer = TDeserializer();
+    TSerializer serializer = TSerializer();
+    TestTObject testTObject = TestTObject();
 
     setUp(() {
       serializer = TSerializer();
@@ -39,7 +43,7 @@ void main() {
       testTObject.d = 15.25;
       testTObject.i = 10;
 
-      var testList = List<String>();
+      var testList = <String>[];
       testList.add("TEST 1");
       testList.add("TEST 2");
 

@@ -1,3 +1,12 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
+import 'package:thrift/src/protocol/t_message.dart';
+import 'package:thrift/src/protocol/t_protocol.dart';
+import 'package:thrift/src/protocol/t_protocol_factory.dart';
+import 'package:thrift/src/transport/t_transport.dart';
+import 'package:thrift/thrift.dart';
+
 /// Licensed to the Apache Software Foundation (ASF) under one
 /// or more contributor license agreements. See the NOTICE file
 /// distributed with this work for additional information
@@ -15,8 +24,6 @@
 /// specific language governing permissions and limitations
 /// under the License.
 
-part of thrift;
-
 class TJsonProtocolFactory implements TProtocolFactory<TJsonProtocol> {
   @override
   TJsonProtocol getProtocol(TTransport transport) {
@@ -32,9 +39,9 @@ class TJsonProtocol extends TProtocol {
 
   static const Utf8Codec utf8Codec = Utf8Codec();
 
-  _BaseContext _context;
-  _BaseContext _rootContext;
-  _LookaheadReader _reader;
+  late _BaseContext _context;
+  late _BaseContext _rootContext;
+  late _LookaheadReader _reader;
 
   final List<_BaseContext> _contextStack = [];
   final Uint8List _tempBuffer = Uint8List(4);
@@ -60,9 +67,8 @@ class TJsonProtocol extends TProtocol {
     _context = _rootContext;
   }
 
-  /// Read a byte that must match [char]; otherwise throw a [TProtocolError].
   void _readJsonSyntaxChar(int charByte) {
-    int byte = _reader.read();
+    int? byte = _reader.read();
     if (byte != charByte) {
       throw TProtocolError(TProtocolErrorType.INVALID_DATA,
           "Expected character ${String.fromCharCode(charByte)} but found: ${String.fromCharCode(byte)}");
@@ -85,9 +91,6 @@ class TJsonProtocol extends TProtocol {
 
   int _hexChar(int byte) => byte.toRadixString(16).codeUnitAt(0);
 
-  /// write
-
-  /// Write the [bytes] as JSON characters, escaping as needed.
   void _writeJsonString(Uint8List bytes) {
     _context.write();
     transport.writeAll(_Constants.QUOTE_BYTES);
@@ -121,8 +124,8 @@ class TJsonProtocol extends TProtocol {
     transport.writeAll(_Constants.QUOTE_BYTES);
   }
 
-  void _writeJsonInteger(int i) {
-    if (i == null) i = 0;
+  void _writeJsonInteger(int? i) {
+    i ??= 0;
 
     _context.write();
     String str = i.toString();
@@ -136,8 +139,8 @@ class TJsonProtocol extends TProtocol {
     }
   }
 
-  void _writeJsonDouble(double d) {
-    if (d == null) d = 0.0;
+  void _writeJsonDouble(double? d) {
+    d ??= 0.0;
 
     _context.write();
     String str = d.toString();
@@ -266,7 +269,7 @@ class TJsonProtocol extends TProtocol {
   }
 
   @override
-  void writeBool(bool b) {
+  void writeBool(bool? b) {
     if (b == null) b = false;
     _writeJsonInteger(b ? 1 : 0);
   }
@@ -297,7 +300,7 @@ class TJsonProtocol extends TProtocol {
   }
 
   @override
-  void writeString(String s) {
+  void writeString(String? s) {
     var bytes = s != null ? utf8Codec.encode(s) : Uint8List.fromList([]);
     _writeJsonString(bytes);
   }
@@ -316,9 +319,18 @@ class TJsonProtocol extends TProtocol {
     List<int> bytes = [];
     List<int> codeunits = [];
 
+    // if (_context == null) {
+    //   throw TProtocolError(TProtocolErrorType.INVALID_DATA, "Context is null");
+    // }
+
     if (!skipContext) {
       _context.read();
     }
+
+    // if (_reader == null) {
+    //   throw TProtocolError(
+    //       TProtocolErrorType.INVALID_DATA, "Attempt to read from null reader");
+    // }
 
     _readJsonSyntaxChar(_Constants.QUOTE_BYTES[0]);
     while (true) {
@@ -418,7 +430,7 @@ class TJsonProtocol extends TProtocol {
       Uint8List bytes = _readJsonString(skipContext: true);
       double d;
       try {
-        d = double.tryParse(utf8Codec.decode(bytes));
+        d = double.parse(utf8Codec.decode(bytes));
       } catch (_) {
         throw TProtocolError(TProtocolErrorType.INVALID_DATA,
             "Bad data encounted in numeric data");
@@ -613,7 +625,7 @@ class TJsonProtocol extends TProtocol {
 }
 
 class _Constants {
-  static const utf8codec = Utf8Codec();
+  static final Utf8Codec utf8codec = Utf8Codec();
 
   static final Uint8List HEX_0_BYTES = Uint8List.fromList('0'.codeUnits);
   static final Uint8List HEX_9_BYTES = Uint8List.fromList('9'.codeUnits);
@@ -675,7 +687,7 @@ class _Constants {
           TProtocolErrorType.NOT_IMPLEMENTED, "Unrecognized type");
     }
 
-    return _TYPE_ID_TO_NAME_BYTES[typeId];
+    return _TYPE_ID_TO_NAME_BYTES[typeId]!;
   }
 
   static final Map<String, int> _NAME_TO_TYPE_ID = Map.unmodifiable({
@@ -699,7 +711,7 @@ class _Constants {
           TProtocolErrorType.NOT_IMPLEMENTED, "Unrecognized type");
     }
 
-    return _NAME_TO_TYPE_ID[name];
+    return _NAME_TO_TYPE_ID[name]!;
   }
 
   static final Set<int> _JSON_NUMERICS = Set.from([

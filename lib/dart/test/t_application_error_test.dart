@@ -18,10 +18,13 @@
 library thrift.test.t_application_error_test;
 
 import 'package:test/test.dart';
-import 'package:thrift/thrift.dart';
+import 'package:thrift/src/protocol/t_binary_protocol.dart';
+import 'package:thrift/src/protocol/t_protocol.dart';
+import 'package:thrift/src/t_application_error.dart';
+import 'package:thrift/src/transport/t_buffered_transport.dart';
 
 void main() {
-  TProtocol protocol;
+  late TProtocol protocol;
 
   setUp(() {
     protocol = TBinaryProtocol(TBufferedTransport());

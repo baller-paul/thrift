@@ -15,7 +15,9 @@
 /// specific language governing permissions and limitations
 /// under the License.
 
-part of thrift;
+import 'dart:async';
+import 'dart:typed_data';
+import './t_transport_error.dart';
 
 abstract class TTransport {
   /// Queries whether the transport is open.
@@ -24,25 +26,25 @@ abstract class TTransport {
 
   /// Opens the transport for reading/writing.
   /// Throws [TTransportError] if the transport could not be opened.
-  Future open();
+  Future<void> open();
 
   /// Closes the transport.
-  Future close();
+  Future<void> close();
 
   /// Reads up to [length] bytes into [buffer], starting at [offset].
   /// Returns the number of bytes actually read.
   /// Throws [TTransportError] if there was an error reading data
-  int read(Uint8List buffer, int offset, int length);
+  Future<int> read(Uint8List buffer, int offset, int length);
 
   /// Guarantees that all of [length] bytes are actually read off the transport.
   /// Returns the number of bytes actually read, which must be equal to
   /// [length].
   /// Throws [TTransportError] if there was an error reading data
-  int readAll(Uint8List buffer, int offset, int length) {
+  Future<int> readAll(Uint8List buffer, int offset, int length) async {
     int got = 0;
     int ret = 0;
     while (got < length) {
-      ret = read(buffer, offset + got, length - got);
+      ret = await read(buffer, offset + got, length - got);
       if (ret <= 0) {
         throw TTransportError(
             TTransportErrorType.UNKNOWN,
@@ -56,15 +58,15 @@ abstract class TTransport {
 
   /// Writes up to [len] bytes from the buffer.
   /// Throws [TTransportError] if there was an error writing data
-  void write(Uint8List buffer, int offset, int length);
+  Future<void> write(Uint8List buffer, int offset, int length);
 
   /// Writes the [bytes] to the output.
   /// Throws [TTransportError] if there was an error writing data
-  void writeAll(Uint8List buffer) {
-    write(buffer, 0, buffer.length);
+  Future<void> writeAll(Uint8List buffer) async {
+    await write(buffer, 0, buffer.length);
   }
 
   /// Flush any pending data out of a transport buffer.
   /// Throws [TTransportError] if there was an error writing out data.
-  Future flush();
+  Future<void> flush();
 }
