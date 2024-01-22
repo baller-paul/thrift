@@ -27,7 +27,7 @@ void main() {
   late TProtocol protocol;
 
   setUp(() {
-    protocol = TBinaryProtocol(TBufferedTransport());
+    protocol = TBinaryProtocol(TBufferedTransport()..open());
   });
 
   test('Write and read an application error', () {
