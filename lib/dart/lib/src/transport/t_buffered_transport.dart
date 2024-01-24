@@ -27,7 +27,7 @@ class TBufferedTransport extends TTransport {
 
   Uint8List consumeWriteBuffer() {
     Uint8List buffer = Uint8List.fromList(_writeBuffer);
-    _writeBuffer.clear();
+
     return buffer;
   }
 
