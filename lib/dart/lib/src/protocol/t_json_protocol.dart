@@ -124,9 +124,7 @@ class TJsonProtocol extends TProtocol {
     transport.writeAll(_Constants.QUOTE_BYTES);
   }
 
-  void _writeJsonInteger(int? i) {
-    i ??= 0;
-
+  void _writeJsonInteger(int i) {
     _context.write();
     String str = i.toString();
 
@@ -139,9 +137,7 @@ class TJsonProtocol extends TProtocol {
     }
   }
 
-  void _writeJsonDouble(double? d) {
-    d ??= 0.0;
-
+  void _writeJsonDouble(double d) {
     _context.write();
     String str = d.toString();
     bool escapeNumbers = d.isNaN || d.isInfinite || _context.escapeNumbers;
