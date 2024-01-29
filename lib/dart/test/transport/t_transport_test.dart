@@ -24,17 +24,13 @@ import 'package:thrift/thrift.dart';
 void main() {
   group('TTransportFactory', () {
     test('transport is returned from base factory', () async {
-      TTransport result;
-      TTransport transport;
+      late TTransport result;
+      late TTransport transport;
 
       var factory = TTransportFactory();
-
-      result = await factory.getTransport(transport);
-      expect(result, isNull);
-
       transport = TBufferedTransport();
-      result = await factory.getTransport(transport);
 
+      result = await factory.getTransport(transport);
       expect(result, transport);
     });
   });

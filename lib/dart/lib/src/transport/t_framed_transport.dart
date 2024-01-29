@@ -23,40 +23,40 @@ part of thrift;
 class TFramedTransport extends TBufferedTransport {
   static const int headerByteCount = 4;
 
-  final TTransport _transport;
+  final TTransport? _transport;
 
   final Uint8List _headerBytes = Uint8List(headerByteCount);
   int _receivedHeaderBytes = 0;
 
   int _bodySize = 0;
-  Uint8List _body;
+  Uint8List? _body;
   int _receivedBodyBytes = 0;
 
-  Completer<Uint8List> _frameCompleter;
+  Completer<Uint8List>? _frameCompleter;
 
-  TFramedTransport(TTransport transport) : _transport = transport {
+  TFramedTransport(TTransport? transport) : _transport = transport {
     if (transport == null) {
       throw ArgumentError.notNull("transport");
     }
   }
 
   @override
-  bool get isOpen => _transport.isOpen;
+  bool get isOpen => _transport!.isOpen;
 
   @override
   Future open() {
     _reset(isOpen: true);
-    return _transport.open();
+    return _transport!.open();
   }
 
   @override
   Future close() {
     _reset(isOpen: false);
-    return _transport.close();
+    return _transport!.close();
   }
 
   @override
-  int read(Uint8List buffer, int offset, int length) {
+  int read(Uint8List? buffer, int offset, int length) {
     if (hasReadData) {
       int got = super.read(buffer, offset, length);
       if (got > 0) return got;
@@ -82,7 +82,7 @@ class TFramedTransport extends TBufferedTransport {
   bool _readFrameHeader() {
     var remainingHeaderBytes = headerByteCount - _receivedHeaderBytes;
 
-    int got = _transport.read(
+    int got = _transport!.read(
         _headerBytes, _receivedHeaderBytes, remainingHeaderBytes);
     if (got < 0) {
       throw TTransportError(TTransportErrorType.UNKNOWN,
@@ -115,7 +115,7 @@ class TFramedTransport extends TBufferedTransport {
   void _readFrameBody() {
     var remainingBodyBytes = _bodySize - _receivedBodyBytes;
 
-    int got = _transport.read(_body, _receivedBodyBytes, remainingBodyBytes);
+    int got = _transport!.read(_body!, _receivedBodyBytes, remainingBodyBytes);
     if (got < 0) {
       throw TTransportError(
           TTransportErrorType.UNKNOWN, "Socket closed during frame body read");
@@ -134,7 +134,7 @@ class TFramedTransport extends TBufferedTransport {
 
       var completer = _frameCompleter;
       _frameCompleter = null;
-      completer.complete(Uint8List(0));
+      completer?.complete(Uint8List(0));
     } else {
       _registerForReadableBytes();
     }
@@ -147,18 +147,18 @@ class TFramedTransport extends TBufferedTransport {
       int length = buffer.length;
 
       _headerBytes.buffer.asByteData().setUint32(0, length);
-      _transport.write(_headerBytes, 0, headerByteCount);
-      _transport.write(buffer, 0, length);
+      _transport?.write(_headerBytes, 0, headerByteCount);
+      _transport?.write(buffer, 0, length);
 
       _frameCompleter = Completer<Uint8List>();
       _registerForReadableBytes();
     }
 
-    return _frameCompleter.future;
+    return _frameCompleter!.future;
   }
 
   void _registerForReadableBytes() {
-    _transport.flush().then((_) {
+    _transport?.flush().then((_) {
       _readFrame();
     }).catchError((e) {
       var completer = _frameCompleter;
@@ -169,7 +169,7 @@ class TFramedTransport extends TBufferedTransport {
       _receivedBodyBytes = 0;
       _frameCompleter = null;
 
-      completer.completeError(e);
+      completer?.completeError(e);
     });
   }
 }

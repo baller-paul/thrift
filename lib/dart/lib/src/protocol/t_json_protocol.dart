@@ -32,9 +32,9 @@ class TJsonProtocol extends TProtocol {
 
   static const Utf8Codec utf8Codec = Utf8Codec();
 
-  _BaseContext _context;
-  _BaseContext _rootContext;
-  _LookaheadReader _reader;
+  late _BaseContext _context;
+  late _BaseContext _rootContext;
+  late _LookaheadReader _reader;
 
   final List<_BaseContext> _contextStack = [];
   final Uint8List _tempBuffer = Uint8List(4);
@@ -121,7 +121,7 @@ class TJsonProtocol extends TProtocol {
     transport.writeAll(_Constants.QUOTE_BYTES);
   }
 
-  void _writeJsonInteger(int i) {
+  void _writeJsonInteger(int? i) {
     if (i == null) i = 0;
 
     _context.write();
@@ -136,7 +136,7 @@ class TJsonProtocol extends TProtocol {
     }
   }
 
-  void _writeJsonDouble(double d) {
+  void _writeJsonDouble(double? d) {
     if (d == null) d = 0.0;
 
     _context.write();
@@ -215,7 +215,7 @@ class TJsonProtocol extends TProtocol {
   void writeFieldBegin(TField field) {
     _writeJsonInteger(field.id);
     _writeJsonObjectStart();
-    _writeJsonString(_Constants.getTypeNameBytesForTypeId(field.type));
+    _writeJsonString(_Constants.getTypeNameBytesForTypeId(field.type)!);
   }
 
   @override
@@ -229,8 +229,8 @@ class TJsonProtocol extends TProtocol {
   @override
   void writeMapBegin(TMap map) {
     _writeJsonArrayStart();
-    _writeJsonString(_Constants.getTypeNameBytesForTypeId(map.keyType));
-    _writeJsonString(_Constants.getTypeNameBytesForTypeId(map.valueType));
+    _writeJsonString(_Constants.getTypeNameBytesForTypeId(map.keyType)!);
+    _writeJsonString(_Constants.getTypeNameBytesForTypeId(map.valueType)!);
     _writeJsonInteger(map.length);
     _writeJsonObjectStart();
   }
@@ -244,7 +244,7 @@ class TJsonProtocol extends TProtocol {
   @override
   void writeListBegin(TList list) {
     _writeJsonArrayStart();
-    _writeJsonString(_Constants.getTypeNameBytesForTypeId(list.elementType));
+    _writeJsonString(_Constants.getTypeNameBytesForTypeId(list.elementType)!);
     _writeJsonInteger(list.length);
   }
 
@@ -256,7 +256,7 @@ class TJsonProtocol extends TProtocol {
   @override
   void writeSetBegin(TSet set) {
     _writeJsonArrayStart();
-    _writeJsonString(_Constants.getTypeNameBytesForTypeId(set.elementType));
+    _writeJsonString(_Constants.getTypeNameBytesForTypeId(set.elementType)!);
     _writeJsonInteger(set.length);
   }
 
@@ -266,7 +266,7 @@ class TJsonProtocol extends TProtocol {
   }
 
   @override
-  void writeBool(bool b) {
+  void writeBool(bool? b) {
     if (b == null) b = false;
     _writeJsonInteger(b ? 1 : 0);
   }
@@ -297,7 +297,7 @@ class TJsonProtocol extends TProtocol {
   }
 
   @override
-  void writeString(String s) {
+  void writeString(String? s) {
     var bytes = s != null ? utf8Codec.encode(s) : Uint8List.fromList([]);
     _writeJsonString(bytes);
   }
@@ -416,18 +416,18 @@ class TJsonProtocol extends TProtocol {
 
     if (_reader.peek() == _Constants.QUOTE_BYTES[0]) {
       Uint8List bytes = _readJsonString(skipContext: true);
-      double d;
+      double? d;
       try {
         d = double.tryParse(utf8Codec.decode(bytes));
       } catch (_) {
         throw TProtocolError(TProtocolErrorType.INVALID_DATA,
             "Bad data encounted in numeric data");
       }
-      if (!_context.escapeNumbers && !d.isNaN && !d.isInfinite) {
+      if (!_context.escapeNumbers && d != null && !d.isNaN && !d.isInfinite) {
         throw TProtocolError(TProtocolErrorType.INVALID_DATA,
             "Numeric data unexpectedly quoted");
       }
-      return d;
+      return d ?? 0;
     } else {
       if (_context.escapeNumbers) {
         // This will throw - we should have had a quote if escapeNumbers == true
@@ -515,7 +515,7 @@ class TJsonProtocol extends TProtocol {
     if (_reader.peek() != _Constants.RBRACE_BYTES[0]) {
       id = _readJsonInteger();
       _readJsonObjectStart();
-      type = _Constants.getTypeIdForTypeName(_readJsonString());
+      type = _Constants.getTypeIdForTypeName(_readJsonString())!;
     }
 
     return TField(name, type, id);
@@ -529,8 +529,8 @@ class TJsonProtocol extends TProtocol {
   @override
   TMap readMapBegin() {
     _readJsonArrayStart();
-    int keyType = _Constants.getTypeIdForTypeName(_readJsonString());
-    int valueType = _Constants.getTypeIdForTypeName(_readJsonString());
+    int keyType = _Constants.getTypeIdForTypeName(_readJsonString())!;
+    int valueType = _Constants.getTypeIdForTypeName(_readJsonString())!;
     int length = _readJsonInteger();
     _readJsonObjectStart();
 
@@ -546,7 +546,7 @@ class TJsonProtocol extends TProtocol {
   @override
   TList readListBegin() {
     _readJsonArrayStart();
-    int elementType = _Constants.getTypeIdForTypeName(_readJsonString());
+    int elementType = _Constants.getTypeIdForTypeName(_readJsonString())!;
     int length = _readJsonInteger();
 
     return TList(elementType, length);
@@ -560,7 +560,7 @@ class TJsonProtocol extends TProtocol {
   @override
   TSet readSetBegin() {
     _readJsonArrayStart();
-    int elementType = _Constants.getTypeIdForTypeName(_readJsonString());
+    int elementType = _Constants.getTypeIdForTypeName(_readJsonString())!;
     int length = _readJsonInteger();
 
     return TSet(elementType, length);
@@ -669,7 +669,7 @@ class _Constants {
     TType.LIST: Uint8List.fromList(NAME_LIST.codeUnits)
   });
 
-  static Uint8List getTypeNameBytesForTypeId(int typeId) {
+  static Uint8List? getTypeNameBytesForTypeId(int typeId) {
     if (!_TYPE_ID_TO_NAME_BYTES.containsKey(typeId)) {
       throw TProtocolError(
           TProtocolErrorType.NOT_IMPLEMENTED, "Unrecognized type");
@@ -692,7 +692,7 @@ class _Constants {
     NAME_LIST: TType.LIST
   });
 
-  static int getTypeIdForTypeName(Uint8List bytes) {
+  static int? getTypeIdForTypeName(Uint8List bytes) {
     String name = utf8codec.decode(bytes);
     if (!_NAME_TO_TYPE_ID.containsKey(name)) {
       throw TProtocolError(

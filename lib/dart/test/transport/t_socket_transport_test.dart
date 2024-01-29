@@ -39,8 +39,8 @@ void main() {
   final framedResponseBase64 = base64.encode(_getFramedResponse(responseBytes));
 
   group('TClientSocketTransport', () {
-    FakeSocket socket;
-    TTransport transport;
+    late FakeSocket socket;
+    late TTransport transport;
 
     setUp(() async {
       socket = FakeSocket(sync: false);
@@ -74,8 +74,8 @@ void main() {
   }, timeout: Timeout(Duration(seconds: 1)));
 
   group('TClientSocketTransport with FramedTransport', () {
-    FakeSocket socket;
-    TTransport transport;
+    late FakeSocket socket;
+    late TTransport transport;
 
     setUp(() async {
       socket = FakeSocket(sync: true);
@@ -87,7 +87,7 @@ void main() {
     });
 
     test('Test client sending data over framed transport', () async {
-      String bufferText;
+      String? bufferText;
 
       Future responseReady = transport.flush().then((_) {
         var buffer = Uint8List(responseBytes.length);
@@ -104,9 +104,9 @@ void main() {
   }, timeout: Timeout(Duration(seconds: 1)));
 
   group('TAsyncClientSocketTransport', () {
-    FakeSocket socket;
-    FakeProtocolFactory protocolFactory;
-    TTransport transport;
+    late FakeSocket socket;
+    late FakeProtocolFactory protocolFactory;
+    late TTransport transport;
 
     setUp(() async {
       socket = FakeSocket(sync: true);
@@ -114,15 +114,13 @@ void main() {
 
       protocolFactory = FakeProtocolFactory();
       protocolFactory.message = TMessage('foo', TMessageType.CALL, 123);
-      transport = TAsyncClientSocketTransport(
-          socket, TMessageReader(protocolFactory),
-          responseTimeout: Duration.zero);
+      transport = TAsyncClientSocketTransport(socket, TMessageReader(protocolFactory), responseTimeout: Duration.zero);
       await transport.open();
       transport.writeAll(requestBytes);
     });
 
     test('Test response correlates to correct request', () async {
-      String bufferText;
+      String? bufferText;
 
       Future responseReady = transport.flush().then((_) {
         var buffer = Uint8List(responseBytes.length);
@@ -152,9 +150,9 @@ void main() {
   }, timeout: Timeout(Duration(seconds: 1)));
 
   group('TAsyncClientSocketTransport with TFramedTransport', () {
-    FakeSocket socket;
-    FakeProtocolFactory protocolFactory;
-    TTransport transport;
+    late FakeSocket socket;
+    late FakeProtocolFactory protocolFactory;
+    late TTransport transport;
 
     setUp(() async {
       socket = FakeSocket(sync: true);
@@ -162,18 +160,15 @@ void main() {
 
       protocolFactory = FakeProtocolFactory();
       protocolFactory.message = TMessage('foo', TMessageType.CALL, 123);
-      var messageReader = TMessageReader(protocolFactory,
-          byteOffset: TFramedTransport.headerByteCount);
+      var messageReader = TMessageReader(protocolFactory, byteOffset: TFramedTransport.headerByteCount);
 
-      transport = TFramedTransport(TAsyncClientSocketTransport(
-          socket, messageReader,
-          responseTimeout: Duration.zero));
+      transport = TFramedTransport(TAsyncClientSocketTransport(socket, messageReader, responseTimeout: Duration.zero));
       await transport.open();
       transport.writeAll(requestBytes);
     });
 
     test('Test async client sending data over framed transport', () async {
-      String bufferText;
+      String bufferText = "";
 
       Future responseReady = transport.flush().then((_) {
         var buffer = Uint8List(responseBytes.length);
@@ -246,12 +241,12 @@ class FakeSocket extends TSocket {
   @override
   Stream<Uint8List> get onMessage => _onMessageController.stream;
 
-  FakeSocket({bool sync =  false})
+  FakeSocket({bool sync = false})
       : _onStateController = StreamController.broadcast(sync: sync),
         _onErrorController = StreamController.broadcast(sync: sync),
         _onMessageController = StreamController.broadcast(sync: sync);
 
-  bool _isOpen;
+  late bool _isOpen;
 
   @override
   bool get isOpen => _isOpen;
@@ -271,7 +266,7 @@ class FakeSocket extends TSocket {
     _onStateController.add(TSocketState.CLOSED);
   }
 
-  Uint8List _sendPayload;
+  late Uint8List _sendPayload;
   Uint8List get sendPayload => _sendPayload;
 
   @override
@@ -292,10 +287,10 @@ class FakeSocket extends TSocket {
 class FakeProtocolFactory implements TProtocolFactory {
   FakeProtocolFactory();
 
-  TMessage message;
+  TMessage? message;
 
   @override
-  getProtocol(TTransport transport) => FakeProtocol(message);
+  getProtocol(TTransport transport) => FakeProtocol(message ?? TMessage("null", 0, 0));
 }
 
 class FakeProtocol extends Mock implements TProtocol {

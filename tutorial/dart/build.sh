@@ -22,24 +22,24 @@ rm -r gen-dart || true;
 
 thrift --gen dart ../shared.thrift;
 cd gen-dart/shared;
-pub get;
+flutter pub get;
 cd ../..;
 
 thrift --gen dart ../tutorial.thrift;
 cd gen-dart/tutorial;
-pub get;
+flutter pub get;
 cd ../..;
 
 cd client;
-pub get;
+flutter pub get;
 cd ..;
 
 cd console_client;
-pub get;
+flutter pub get;
 cd ..;
 
 cd server;
-pub get;
+flutter pub get;
 cd ..;
 
 dartfmt -w gen-dart;

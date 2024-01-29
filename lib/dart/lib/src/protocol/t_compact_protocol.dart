@@ -54,7 +54,7 @@ class TCompactProtocol extends TProtocol {
   static const int TYPE_MAP = 0x0B;
   static const int TYPE_STRUCT = 0x0C;
 
-  static final List<int> _typeMap = List.unmodifiable(List(16)
+  static final List<int> _typeMap = List.unmodifiable(List.filled(16, 0)
     ..[TType.STOP] = TType.STOP
     ..[TType.BOOL] = TYPE_BOOLEAN_TRUE
     ..[TType.BYTE] = TYPE_BYTE
@@ -74,8 +74,8 @@ class TCompactProtocol extends TProtocol {
   DoubleLinkedQueue<int> _lastField = DoubleLinkedQueue<int>();
   int _lastFieldId = 0;
 
-  TField _booleanField;
-  bool _boolValue;
+  TField? _booleanField;
+  bool? _boolValue;
 
   final Uint8List tempList = Uint8List(10);
   final ByteData tempBD = ByteData(10);
@@ -168,11 +168,11 @@ class TCompactProtocol extends TProtocol {
   void writeSetEnd() {}
 
   @override
-  void writeBool(bool b) {
+  void writeBool(bool? b) {
     if (b == null) b = false;
     if (_booleanField != null) {
       _writeFieldBegin(
-          _booleanField, b ? TYPE_BOOLEAN_TRUE : TYPE_BOOLEAN_FALSE);
+          _booleanField!, b ? TYPE_BOOLEAN_TRUE : TYPE_BOOLEAN_FALSE);
       _booleanField = null;
     } else {
       writeByte(b ? TYPE_BOOLEAN_TRUE : TYPE_BOOLEAN_FALSE);
@@ -180,39 +180,39 @@ class TCompactProtocol extends TProtocol {
   }
 
   @override
-  void writeByte(int b) {
+  void writeByte(int? b) {
     if (b == null) b = 0;
     tempList[0] = b;
     transport.write(tempList, 0, 1);
   }
 
   @override
-  void writeI16(int i16) {
+  void writeI16(int? i16) {
     if (i16 == null) i16 = 0;
     _writeVarInt32(_int32ToZigZag(Int32(i16)));
   }
 
   @override
-  void writeI32(int i32) {
+  void writeI32(int? i32) {
     if (i32 == null) i32 = 0;
     _writeVarInt32(_int32ToZigZag(Int32(i32)));
   }
 
   @override
-  void writeI64(int i64) {
+  void writeI64(int? i64) {
     if (i64 == null) i64 = 0;
     _writeVarInt64(_int64ToZigZag(Int64(i64)));
   }
 
   @override
-  void writeDouble(double d) {
+  void writeDouble(double? d) {
     if (d == null) d = 0.0;
     tempBD.setFloat64(0, d, Endian.little);
     transport.write(tempBD.buffer.asUint8List(), 0, 8);
   }
 
   @override
-  void writeString(String str) {
+  void writeString(String? str) {
     Uint8List bytes =
         str != null ? _utf8Codec.encode(str) : Uint8List.fromList([]);
     writeBinary(bytes);
@@ -374,9 +374,9 @@ class TCompactProtocol extends TProtocol {
   @override
   bool readBool() {
     if (_boolValue != null) {
-      bool result = _boolValue;
+      bool? result = _boolValue;
       _boolValue = null;
-      return result;
+      return result ?? false;
     }
     return readByte() == TYPE_BOOLEAN_TRUE;
   }

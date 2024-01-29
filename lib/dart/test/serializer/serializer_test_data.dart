@@ -30,15 +30,15 @@ class TestTObject implements TBase {
   static final TField _L_FIELD_DESC = TField("l", TType.LIST, 4);
   static final TField _B_FIELD_DESC = TField("b", TType.BOOL, 5);
 
-  int _i;
+  late int _i;
   static const int I = 1;
-  double _d;
+  late double _d;
   static const int D = 2;
-  String _s;
+  late String? _s;
   static const int S = 3;
-  List<String> _l;
+  List<String>? l;
   static const int L = 4;
-  bool _b;
+  late bool _b;
   static const int B = 5;
 
   bool __isset_i = false;
@@ -76,9 +76,9 @@ class TestTObject implements TBase {
   }
 
   // s
-  String get s => this._s;
+  String? get s => this._s;
 
-  set s(String s) {
+  set s(String? s) {
     this._s = s;
   }
 
@@ -89,11 +89,6 @@ class TestTObject implements TBase {
   }
 
   // l
-  List<String> get l => this._l;
-
-  set l(List<String> l) {
-    this._l = l;
-  }
 
   bool isSetL() => this.l != null;
 
@@ -134,13 +129,13 @@ class TestTObject implements TBase {
   }
 
   @override
-  setFieldValue(int fieldID, Object value) {
+  setFieldValue(int fieldID, Object? value) {
     switch (fieldID) {
       case I:
         if (value == null) {
           unsetI();
         } else {
-          this.i = value;
+          this.i = value as int;
         }
         break;
 
@@ -148,7 +143,7 @@ class TestTObject implements TBase {
         if (value == null) {
           unsetD();
         } else {
-          this.d = value;
+          this.d = value as double;
         }
         break;
 
@@ -156,7 +151,7 @@ class TestTObject implements TBase {
         if (value == null) {
           unsetS();
         } else {
-          this.s = value;
+          this.s = value as String;
         }
         break;
 
@@ -172,7 +167,7 @@ class TestTObject implements TBase {
         if (value == null) {
           unsetB();
         } else {
-          this.b = value;
+          this.b = value as bool;
         }
         break;
 
@@ -237,11 +232,11 @@ class TestTObject implements TBase {
           if (field.type == TType.LIST) {
             {
               TList _list74 = iprot.readListBegin();
-              this.l = List<String>();
+              this.l = [] as List<String>;
               for (int _i75 = 0; _i75 < _list74.length; ++_i75) {
                 String _elem76;
                 _elem76 = iprot.readString();
-                this.l.add(_elem76);
+                this.l?.add(_elem76);
               }
               iprot.readListEnd();
             }
@@ -282,14 +277,14 @@ class TestTObject implements TBase {
     oprot.writeFieldEnd();
     if (this.s != null) {
       oprot.writeFieldBegin(_S_FIELD_DESC);
-      oprot.writeString(this.s);
+      oprot.writeString(this.s!);
       oprot.writeFieldEnd();
     }
     if (this.l != null) {
       oprot.writeFieldBegin(_L_FIELD_DESC);
       {
-        oprot.writeListBegin(TList(TType.STRING, this.l.length));
-        for (var elem77 in this.l) {
+        oprot.writeListBegin(TList(TType.STRING, this.l!.length));
+        for (var elem77 in this.l!) {
           oprot.writeString(elem77);
         }
         oprot.writeListEnd();

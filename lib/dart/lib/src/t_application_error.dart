@@ -45,7 +45,7 @@ class TApplicationError extends TError {
   static TApplicationError read(TProtocol iprot) {
     TField field;
 
-    String message;
+    String? message;
     int type = TApplicationErrorType.UNKNOWN;
 
     iprot.readStructBegin();
@@ -81,15 +81,15 @@ class TApplicationError extends TError {
     }
     iprot.readStructEnd();
 
-    return TApplicationError(type, message);
+    return TApplicationError(type, message ?? "");
   }
 
   write(TProtocol oprot) {
     oprot.writeStructBegin(_struct);
 
-    if (message != null && message.isNotEmpty) {
+    if (message != null && message!.isNotEmpty) {
       oprot.writeFieldBegin(_messageField);
-      oprot.writeString(message);
+      oprot.writeString(message!);
       oprot.writeFieldEnd();
     }
 

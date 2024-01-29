@@ -25,9 +25,9 @@ import 'serializer_test_data.dart';
 
 void main() {
   var serializer = () {
-    TDeserializer deserializer;
-    TSerializer serializer;
-    TestTObject testTObject;
+    late TDeserializer deserializer;
+    late TSerializer serializer;
+    late TestTObject testTObject;
 
     setUp(() {
       serializer = TSerializer();
@@ -39,7 +39,7 @@ void main() {
       testTObject.d = 15.25;
       testTObject.i = 10;
 
-      var testList = List<String>();
+      var testList = [] as List<String>;
       testList.add("TEST 1");
       testList.add("TEST 2");
 

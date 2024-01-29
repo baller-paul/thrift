@@ -20,7 +20,7 @@ part of thrift;
 /// Buffered implementation of [TTransport].
 class TBufferedTransport extends TTransport {
   final List<int> _writeBuffer = [];
-  Iterator<int> _readIterator;
+  Iterator<int>? _readIterator;
 
   Uint8List consumeWriteBuffer() {
     Uint8List buffer = Uint8List.fromList(_writeBuffer);
@@ -28,7 +28,7 @@ class TBufferedTransport extends TTransport {
     return buffer;
   }
 
-  void _setReadBuffer(Uint8List readBuffer) {
+  void _setReadBuffer(Uint8List? readBuffer) {
     _readIterator = readBuffer != null ? readBuffer.iterator : null;
   }
 
@@ -40,7 +40,7 @@ class TBufferedTransport extends TTransport {
 
   bool get hasReadData => _readIterator != null;
 
-  bool _isOpen;
+  late bool _isOpen;
   @override
   bool get isOpen => _isOpen;
 
@@ -55,7 +55,7 @@ class TBufferedTransport extends TTransport {
   }
 
   @override
-  int read(Uint8List buffer, int offset, int length) {
+  int read(Uint8List? buffer, int offset, int length) {
     if (buffer == null) {
       throw ArgumentError.notNull("buffer");
     }
@@ -69,13 +69,13 @@ class TBufferedTransport extends TTransport {
     }
 
     int i = 0;
-    while (i < length && _readIterator.moveNext()) {
-      buffer[offset + i] = _readIterator.current;
+    while (i < length && _readIterator!.moveNext()) {
+      buffer[offset + i] = _readIterator!.current;
       i++;
     }
 
     // cleanup iterator when we've reached the end
-    if (_readIterator.current == null) {
+    if (_readIterator?.current == null) {
       _readIterator = null;
     }
 
@@ -83,7 +83,7 @@ class TBufferedTransport extends TTransport {
   }
 
   @override
-  void write(Uint8List buffer, int offset, int length) {
+  void write(Uint8List? buffer, int offset, int length) {
     if (buffer == null) {
       throw ArgumentError.notNull("buffer");
     }

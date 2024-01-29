@@ -34,8 +34,8 @@ void main() {
   const utf8Codec = Utf8Codec();
 
   group('THttpClientTransport', () {
-    FakeHttpClient client;
-    THttpClientTransport transport;
+    late FakeHttpClient client;
+    late THttpClientTransport transport;
 
     setUp(() {
       client = FakeHttpClient(sync: false);
@@ -78,8 +78,8 @@ void main() {
   });
 
   group('THttpClientTransport with multiple messages', () {
-    FakeHttpClient client;
-    THttpClientTransport transport;
+    late FakeHttpClient client;
+    late THttpClientTransport transport;
 
     setUp(() {
       client = FakeHttpClient(sync: true);
@@ -88,7 +88,7 @@ void main() {
     });
 
     test('Test read correct buffer after flush', () async {
-      String bufferText;
+      late String bufferText;
       var expectedText = 'response 1';
       var expectedBytes = utf8Codec.encode(expectedText);
 
@@ -123,9 +123,8 @@ class FakeHttpClient implements Client {
   FakeHttpClient({this.sync = false});
 
   @override
-  Future<Response> post(url,
-      {Map<String, String> headers, body, Encoding encoding}) {
-    postRequest = body;
+  Future<Response> post(url, {Map<String, String>? headers, Object? body, Encoding? encoding}) {
+    postRequest = body.toString();
     var response = Response(postResponse, 200);
 
     if (sync) {
@@ -136,38 +135,28 @@ class FakeHttpClient implements Client {
   }
 
   @override
-  Future<Response> head(url, {Map<String, String> headers}) =>
-      throw UnimplementedError();
+  Future<Response> head(url, {Map<String, String>? headers}) => throw UnimplementedError();
 
   @override
-  Future<Response> get(url, {Map<String, String> headers}) =>
-      throw UnimplementedError();
+  Future<Response> get(url, {Map<String, String>? headers}) => throw UnimplementedError();
 
   @override
-  Future<Response> put(url,
-          {Map<String, String> headers, body, Encoding encoding}) =>
-      throw UnimplementedError();
+  Future<Response> put(url, {Map<String, String>? headers, body, Encoding? encoding}) => throw UnimplementedError();
 
   @override
-  Future<Response> patch(url,
-          {Map<String, String> headers, body, Encoding encoding}) =>
-      throw UnimplementedError();
+  Future<Response> patch(url, {Map<String, String>? headers, body, Encoding? encoding}) => throw UnimplementedError();
 
   @override
-  Future<Response> delete(url, {Map<String, String> headers}) =>
-      throw UnimplementedError();
+  Future<Response> delete(url, {Map<String, String>? headers, Object? body, Encoding? encoding}) => throw UnimplementedError();
 
   @override
-  Future<String> read(url, {Map<String, String> headers}) =>
-      throw UnimplementedError();
+  Future<String> read(url, {Map<String, String>? headers, Object? body, Encoding? encoding}) => throw UnimplementedError();
 
   @override
-  Future<Uint8List> readBytes(url, {Map<String, String> headers}) =>
-      throw UnimplementedError();
+  Future<Uint8List> readBytes(url, {Map<String, String>? headers}) => throw UnimplementedError();
 
   @override
-  Future<StreamedResponse> send(BaseRequest request) =>
-      throw UnimplementedError();
+  Future<StreamedResponse> send(BaseRequest request) => throw UnimplementedError();
 
   @override
   void close() => throw UnimplementedError();

@@ -30,7 +30,7 @@ part of thrift;
 abstract class TSocketTransport extends TBufferedTransport {
   final Logger logger = Logger('thrift.TSocketTransport');
 
-  final TSocket socket;
+  final TSocket? socket;
 
   /// A transport using the provided [socket].
   TSocketTransport(this.socket) {
@@ -38,23 +38,23 @@ abstract class TSocketTransport extends TBufferedTransport {
       throw ArgumentError.notNull('socket');
     }
 
-    socket.onError.listen((e) => logger.warning(e));
-    socket.onMessage.listen(handleIncomingMessage);
+    socket?.onError.listen((e) => logger.warning(e));
+    socket?.onMessage.listen(handleIncomingMessage);
   }
 
   @override
-  bool get isOpen => socket.isOpen;
+  bool get isOpen => socket!.isOpen;
 
   @override
   Future open() {
     _reset(isOpen: true);
-    return socket.open();
+    return socket!.open();
   }
 
   @override
   Future close() {
     _reset(isOpen: false);
-    return socket.close();
+    return socket!.close();
   }
 
   /// Make an incoming message available to read from the transport.
@@ -84,7 +84,7 @@ class TClientSocketTransport extends TSocketTransport {
     _completers.add(completer);
 
     if (bytes.lengthInBytes > 0) {
-      socket.send(bytes);
+      socket?.send(bytes);
     }
 
     return completer.future;
@@ -114,7 +114,7 @@ class TAsyncClientSocketTransport extends TSocketTransport {
 
   final TMessageReader messageReader;
 
-  final Duration responseTimeout;
+  final Duration? responseTimeout;
 
   TAsyncClientSocketTransport(TSocket socket, TMessageReader messageReader,
       {Duration responseTimeout = defaultTimeout})
@@ -135,7 +135,7 @@ class TAsyncClientSocketTransport extends TSocketTransport {
     _completers[seqid] = completer;
 
     if (responseTimeout != null) {
-      Future.delayed(responseTimeout, () {
+      Future.delayed(responseTimeout!, () {
         var completer = _completers.remove(seqid);
         if (completer != null) {
           completer.completeError(
@@ -144,7 +144,7 @@ class TAsyncClientSocketTransport extends TSocketTransport {
       });
     }
 
-    socket.send(bytes);
+    socket?.send(bytes);
 
     return completer.future;
   }
@@ -174,7 +174,7 @@ class TServerSocketTransport extends TSocketTransport {
   @override
   Future flush() async {
     Uint8List message = consumeWriteBuffer();
-    socket.send(message);
+    socket?.send(message);
   }
 
   @override

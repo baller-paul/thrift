@@ -38,7 +38,7 @@ class TWebSocket implements TSocket {
   @override
   Stream<Uint8List> get onMessage => _onMessageController.stream;
 
-  TWebSocket(WebSocket socket)
+  TWebSocket(WebSocket? socket)
       : _onStateController = StreamController.broadcast(),
         _onErrorController = StreamController.broadcast(),
         _onMessageController = StreamController.broadcast() {
@@ -47,10 +47,10 @@ class TWebSocket implements TSocket {
     }
 
     _socket = socket;
-    _socket.listen(_onMessage, onError: _onError, onDone: close);
+    _socket?.listen(_onMessage, onError: _onError, onDone: close);
   }
 
-  WebSocket _socket;
+  WebSocket? _socket;
 
   @override
   bool get isOpen => _socket != null;
@@ -66,7 +66,7 @@ class TWebSocket implements TSocket {
   @override
   Future close() async {
     if (_socket != null) {
-      await _socket.close();
+      await _socket!.close();
       _socket = null;
     }
 
@@ -75,10 +75,10 @@ class TWebSocket implements TSocket {
 
   @override
   void send(Uint8List data) {
-    _socket.add(base64.encode(data));
+    _socket?.add(base64.encode(data));
   }
 
-  void _onMessage(String message) {
+  void _onMessage(dynamic message) {
     try {
       Uint8List data = Uint8List.fromList(base64.decode(message));
       _onMessageController.add(data);

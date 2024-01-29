@@ -21,9 +21,9 @@ part of thrift;
 class TMultiplexedProtocol extends TProtocolDecorator {
   static const SEPARATOR = ':';
 
-  final String _serviceName;
+  final String? _serviceName;
 
-  TMultiplexedProtocol(TProtocol protocol, String serviceName)
+  TMultiplexedProtocol(TProtocol protocol, String? serviceName)
       : _serviceName = serviceName,
         super(protocol) {
     if (serviceName == null) {
@@ -35,7 +35,7 @@ class TMultiplexedProtocol extends TProtocolDecorator {
   void writeMessageBegin(TMessage message) {
     if (message.type == TMessageType.CALL ||
         message.type == TMessageType.ONEWAY) {
-      String name = _serviceName + SEPARATOR + message.name;
+      String name = (_serviceName ?? "") + SEPARATOR + message.name;
       message = TMessage(name, message.type, message.seqid);
     }
 

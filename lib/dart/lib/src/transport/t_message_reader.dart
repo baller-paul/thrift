@@ -45,9 +45,9 @@ class TMessageReader {
 class _TMessageReaderTransport extends TTransport {
   _TMessageReaderTransport();
 
-  Iterator<int> _readIterator;
+  Iterator<int>? _readIterator;
 
-  void reset(Uint8List bytes, [int offset = 0]) {
+  void reset(Uint8List? bytes, [int offset = 0]) {
     if (bytes == null) {
       _readIterator = null;
       return;
@@ -60,7 +60,7 @@ class _TMessageReaderTransport extends TTransport {
     _readIterator = bytes.iterator;
 
     for (var i = 0; i < offset; i++) {
-      _readIterator.moveNext();
+      _readIterator?.moveNext();
     }
   }
 
@@ -74,7 +74,7 @@ class _TMessageReaderTransport extends TTransport {
   Future close() => throw UnsupportedError("Unsupported in MessageReader");
 
   @override
-  int read(Uint8List buffer, int offset, int length) {
+  int read(Uint8List? buffer, int offset, int length) {
     if (buffer == null) {
       throw ArgumentError.notNull("buffer");
     }
@@ -88,8 +88,8 @@ class _TMessageReaderTransport extends TTransport {
     }
 
     int i = 0;
-    while (i < length && _readIterator.moveNext()) {
-      buffer[offset + i] = _readIterator.current;
+    while (i < length && _readIterator!.moveNext()) {
+      buffer[offset + i] = _readIterator!.current;
       i++;
     }
 
