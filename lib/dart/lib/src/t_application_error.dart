@@ -15,7 +15,8 @@
 /// specific language governing permissions and limitations
 /// under the License.
 
-part of thrift;
+import 'package:thrift/thrift.dart';
+import 'package:thrift/src/protocol/t_protocol.dart';
 
 class TApplicationErrorType {
   static const int UNKNOWN = 0;
@@ -45,7 +46,7 @@ class TApplicationError extends TError {
   static TApplicationError read(TProtocol iprot) {
     TField field;
 
-    String? message;
+    String message = "";
     int type = TApplicationErrorType.UNKNOWN;
 
     iprot.readStructBegin();
@@ -81,7 +82,7 @@ class TApplicationError extends TError {
     }
     iprot.readStructEnd();
 
-    return TApplicationError(type, message ?? "");
+    return TApplicationError(type, message);
   }
 
   write(TProtocol oprot) {

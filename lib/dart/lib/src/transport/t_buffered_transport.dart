@@ -15,77 +15,75 @@
 /// specific language governing permissions and limitations
 /// under the License.
 
-part of thrift;
+import 'dart:typed_data';
+import '../transport/t_transport.dart';
+import '../transport/t_transport_error.dart';
 
 /// Buffered implementation of [TTransport].
 class TBufferedTransport extends TTransport {
   final List<int> _writeBuffer = [];
-  Iterator<int>? _readIterator;
+  late Iterator<int> _readIterator;
+  bool _hasReadData = false;
 
   Uint8List consumeWriteBuffer() {
     Uint8List buffer = Uint8List.fromList(_writeBuffer);
-    _writeBuffer.clear();
+
     return buffer;
   }
 
-  void _setReadBuffer(Uint8List? readBuffer) {
-    _readIterator = readBuffer != null ? readBuffer.iterator : null;
+  void setReadBuffer(Uint8List readBuffer) {
+    _readIterator = readBuffer.iterator;
+    _hasReadData = true;
   }
 
-  void _reset({bool isOpen = false}) {
+  void reset({bool isOpen = false}) {
     _isOpen = isOpen;
     _writeBuffer.clear();
-    _readIterator = null;
+    _hasReadData = false;
   }
 
-  bool get hasReadData => _readIterator != null;
+  bool get hasReadData => _hasReadData;
 
-  late bool _isOpen;
+  bool _isOpen = false;
   @override
   bool get isOpen => _isOpen;
 
   @override
-  Future open() async {
-    _reset(isOpen: true);
+  Future<void> open() async {
+    reset(isOpen: true);
   }
 
   @override
-  Future close() async {
-    _reset(isOpen: false);
+  Future<void> close() async {
+    reset(isOpen: false);
   }
 
   @override
-  int read(Uint8List? buffer, int offset, int length) {
-    if (buffer == null) {
-      throw ArgumentError.notNull("buffer");
-    }
-
+  Future<int> read(Uint8List buffer, int offset, int length) async {
     if (offset + length > buffer.length) {
       throw ArgumentError("The range exceeds the buffer length");
     }
 
-    if (_readIterator == null || length <= 0) {
+    if (length <= 0) {
       return 0;
     }
 
     int i = 0;
-    while (i < length && _readIterator!.moveNext()) {
-      buffer[offset + i] = _readIterator!.current;
+    while (i < length && _readIterator.moveNext()) {
+      buffer[offset + i] = _readIterator.current;
       i++;
     }
 
-    // cleanup iterator when we've reached the end
-    if (_readIterator?.current == null) {
-      _readIterator = null;
-    }
+    _hasReadData = i == length;
 
     return i;
   }
 
   @override
-  void write(Uint8List? buffer, int offset, int length) {
-    if (buffer == null) {
-      throw ArgumentError.notNull("buffer");
+  Future<void> write(Uint8List buffer, int offset, int length) async {
+    if (!_isOpen) {
+      throw TTransportError(TTransportErrorType.NOT_OPEN,
+          "Cannot write to transport. Transport is not open.");
     }
 
     if (offset + length > buffer.length) {
@@ -96,9 +94,7 @@ class TBufferedTransport extends TTransport {
   }
 
   @override
-  Future flush() {
+  Future<void> flush() async {
     _readIterator = consumeWriteBuffer().iterator;
-
-    return Future.value();
   }
 }

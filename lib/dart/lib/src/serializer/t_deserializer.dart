@@ -15,21 +15,27 @@
 /// specific language governing permissions and limitations
 /// under the License.
 
-part of thrift;
+import "dart:convert";
+import "dart:typed_data";
+
+import "package:thrift/src/protocol/t_protocol_factory.dart";
+import "package:thrift/src/protocol/t_binary_protocol.dart";
+import "package:thrift/thrift.dart";
+import "../protocol/t_message.dart";
+import "../protocol/t_protocol.dart";
+import "../transport/t_buffered_transport.dart";
 
 class TDeserializer {
-  final message = TMessage('Deserializer', TMessageType.ONEWAY, 1);
+  final TMessage message = TMessage('Deserializer', TMessageType.ONEWAY, 1);
   late TBufferedTransport transport;
   late TProtocol protocol;
 
   TDeserializer({TProtocolFactory? protocolFactory}) {
-    this.transport = TBufferedTransport();
+    transport = TBufferedTransport();
 
-    if (protocolFactory == null) {
-      protocolFactory = TBinaryProtocolFactory();
-    }
+    protocolFactory ??= TBinaryProtocolFactory();
 
-    this.protocol = protocolFactory.getProtocol(this.transport);
+    protocol = protocolFactory.getProtocol(transport);
   }
 
   void read(TBase base, Uint8List data) {

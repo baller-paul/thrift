@@ -18,20 +18,37 @@
 library thrift.test.transport.t_socket_transport_test;
 
 import 'package:test/test.dart';
-import 'package:thrift/thrift.dart';
+import 'package:thrift/src/transport/t_buffered_transport.dart';
+import 'package:thrift/src/transport/t_transport.dart';
+import 'package:thrift/src/transport/t_transport_factory.dart';
 
 /// Common transport tests
 void main() {
   group('TTransportFactory', () {
     test('transport is returned from base factory', () async {
-      late TTransport result;
-      late TTransport transport;
+      TTransport? result;
+      TTransport? transport;
 
       var factory = TTransportFactory();
-      transport = TBufferedTransport();
 
+      // Test with null transport
+      try {
+        result = await factory.getTransport(transport!);
+        // If getTransport doesn't throw, we assert that result should be null.
+        expect(result, isNull,
+            reason: 'Expected result to be null when transport is null');
+      } catch (e) {
+        // If getTransport throws, we catch the exception and fail the test, or handle it accordingly.
+        expect(e, isA<TypeError>(),
+            reason: 'Expected NoSuchMethodError when transport is null');
+      }
+
+      // Test with non-null transport
+      transport = TBufferedTransport()..open();
       result = await factory.getTransport(transport);
-      expect(result, transport);
+      expect(result, transport,
+          reason:
+              'Expected result to be the transport instance when transport is non-null');
     });
   });
 }

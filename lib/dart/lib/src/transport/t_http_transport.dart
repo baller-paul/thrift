@@ -21,47 +21,46 @@ part of thrift;
 ///
 /// For example:
 ///
-///     var transport = new THttpClientTransport(new BrowserClient(),
-///         new THttpConfig(url, {'X-My-Custom-Header': 'my value'}));
-///     var protocol = new TJsonProtocol(transport);
-///     var client = new MyThriftServiceClient(protocol);
+///     var transport = THttpClientTransport(BrowserClient(),
+///         THttpConfig(url, {'X-My-Custom-Header': 'my value'}));
+///     var protocol = TJsonProtocol(transport);
+///     var client = MyThriftServiceClient(protocol);
 ///     var result = client.myMethod();
 ///
 /// Adapted from the JS XHR HTTP transport.
 class THttpClientTransport extends TBufferedTransport {
-  final Client? httpClient;
+  final Client httpClient;
   final THttpConfig config;
 
-  THttpClientTransport(this.httpClient, this.config) {
-    if (httpClient == null) {
-      throw ArgumentError.notNull("httpClient");
-    }
+  THttpClientTransport(this.httpClient, this.config);
+
+  @override
+  Future<void> close() async {
+    reset(isOpen: false);
+    httpClient.close();
   }
 
   @override
-  Future close() async {
-    _reset(isOpen: false);
-    httpClient?.close();
-  }
-
-  @override
-  Future flush() {
+  Future<void> flush() {
     var requestBody = base64.encode(consumeWriteBuffer());
 
     // Use a sync completer to ensure that the buffer can be read immediately
     // after the read buffer is set, and avoid a race condition where another
     // response could overwrite the read buffer.
-    var completer = Completer.sync();
+    var completer = Completer<void>.sync();
 
-    httpClient!.post(config.url!, headers: config.headers, body: requestBody).then((response) {
+    httpClient
+        .post(config.url, headers: config.headers, body: requestBody)
+        .then((response) {
       Uint8List data;
       try {
         data = Uint8List.fromList(base64.decode(response.body));
       } on FormatException catch (_) {
-        throw TProtocolError(TProtocolErrorType.INVALID_DATA, "Expected a Base 64 encoded string.");
+        throw TProtocolError(TProtocolErrorType.INVALID_DATA,
+            "Expected a Base 64 encoded string.");
       }
 
-      _setReadBuffer(data);
+      setReadBuffer(data);
       completer.complete();
     });
 
@@ -70,25 +69,25 @@ class THttpClientTransport extends TBufferedTransport {
 }
 
 class THttpConfig {
-  final Uri? url;
+  final Uri url;
 
-  Map<String, String>? _headers;
-  Map<String, String>? get headers => _headers;
+  Map<String, String> _headers;
+  Map<String, String> get headers => _headers;
 
-  THttpConfig(this.url, Map<String, String> headers) {
-    if (url == null || !url!.hasAuthority) {
+  THttpConfig(this.url, this._headers) {
+    if (!url.hasAuthority) {
       throw ArgumentError("Invalid url");
     }
 
     _initHeaders(headers);
   }
 
-  void _initHeaders(Map<String, String>? initial) {
+  void _initHeaders(Map<String, String> initial) {
     var h = {};
 
-    if (initial != null) {
-      h.addAll(initial);
-    }
+    // if (initial != null) {
+    h.addAll(initial);
+    // }
 
     h['Content-Type'] = 'application/x-thrift';
     h['Accept'] = 'application/x-thrift';
