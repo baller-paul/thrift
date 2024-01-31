@@ -116,7 +116,7 @@ class TestTObject implements TBase {
     this.__isset_b = false;
   }
 
-  @override
+  // @override
   getFieldValue(int fieldID) {
     switch (fieldID) {
       case I:
@@ -134,7 +134,7 @@ class TestTObject implements TBase {
     }
   }
 
-  @override
+  // @override
   setFieldValue(int fieldID, Object? value) {
     switch (fieldID) {
       case I:
@@ -183,7 +183,7 @@ class TestTObject implements TBase {
   }
 
   // Returns true if the field corresponding to fieldID is set (has been assigned a value) and false otherwise
-  @override
+  // @override
   bool isSet(int fieldID) {
     switch (fieldID) {
       case I:
