@@ -23,13 +23,6 @@ import 'dart:typed_data' show Uint8List;
 
 import 'package:mockito/mockito.dart';
 import 'package:test/test.dart';
-import 'package:thrift/src/protocol/t_message.dart';
-import 'package:thrift/src/protocol/t_protocol.dart';
-import 'package:thrift/src/protocol/t_protocol_factory.dart';
-import 'package:thrift/src/transport/t_framed_transport.dart';
-import 'package:thrift/src/transport/t_message_reader.dart';
-import 'package:thrift/src/transport/t_socket_transport.dart';
-import 'package:thrift/src/transport/t_transport.dart';
 import 'package:thrift/thrift.dart';
 
 void main() {

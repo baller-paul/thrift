@@ -15,12 +15,7 @@
 /// specific language governing permissions and limitations
 /// under the License.
 
-import 'dart:async';
-import 'dart:typed_data';
-
-import 'package:thrift/src/transport/t_buffered_transport.dart';
-import 'package:thrift/src/transport/t_transport.dart';
-import 'package:thrift/src/transport/t_transport_error.dart';
+part of thrift;
 
 /// Framed [TTransport].
 ///

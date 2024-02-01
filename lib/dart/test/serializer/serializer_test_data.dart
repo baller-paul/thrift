@@ -19,7 +19,6 @@
 
 library thrift.test.serializer.serializer_test;
 
-import 'package:thrift/src/protocol/t_protocol.dart';
 import 'package:thrift/thrift.dart';
 
 /// TestTObject is a simple test struct

@@ -15,7 +15,7 @@
 /// specific language governing permissions and limitations
 /// under the License.
 
-// part of thrift;
+part of thrift;
 
 class TMessageType {
   static const int CALL = 1;

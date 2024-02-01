@@ -15,7 +15,7 @@
 /// specific language governing permissions and limitations
 /// under the License.
 
-import "t_transport.dart";
+part of thrift;
 
 /// Factory class used to create wrapped instance of a [TTransport]. This is
 /// used primarily in servers.

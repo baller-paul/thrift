@@ -26,14 +26,7 @@
 ///
 /// Adapted from the JS WebSocket transport.
 
-import 'dart:async';
-import 'dart:typed_data';
-
-import 'package:logging/logging.dart';
-import 'package:thrift/src/protocol/t_message.dart';
-import 'package:thrift/src/transport/t_message_reader.dart';
-import 'package:thrift/thrift.dart';
-import '../transport/t_buffered_transport.dart';
+part of thrift;
 
 abstract class TSocketTransport extends TBufferedTransport {
   final Logger logger = Logger('thrift.TSocketTransport');

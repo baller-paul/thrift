@@ -21,7 +21,6 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data' show Uint8List;
 
-import 'package:thrift/src/transport/t_transport_error.dart';
 import 'package:thrift/thrift.dart';
 
 /// A [TSocket] backed by a [Socket] from dart:io

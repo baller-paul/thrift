@@ -17,9 +17,7 @@
 
 /// Adapted from the C# version.
 
-import 'package:thrift/thrift.dart';
-import 'package:thrift/src/protocol/t_message.dart';
-import 'package:thrift/src/protocol/t_protocol.dart';
+part of thrift;
 
 class TMultiplexedProtocol extends TProtocolDecorator {
   static const SEPARATOR = ':';

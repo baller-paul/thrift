@@ -14,10 +14,8 @@
 /// KIND, either express or implied. See the License for the
 /// specific language governing permissions and limitations
 /// under the License.
-
-import 'dart:async';
-import 'dart:typed_data';
-import './t_transport_error.dart';
+///
+part of thrift;
 
 abstract class TTransport {
   /// Queries whether the transport is open.

@@ -1,10 +1,8 @@
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:thrift/src/protocol/t_json_protocol.dart';
-import 'package:thrift/src/transport/t_buffered_transport.dart';
-
-import 'gen-dart/test/lib/src/header.dart';
+import 'package:thrift/gen-dart/test/lib/src/header.dart';
+import 'package:thrift/thrift.dart';
 
 // To build the config classes:
 // > thrift -gen dart test.thrift

@@ -22,8 +22,6 @@ import 'dart:convert' show utf8;
 import 'dart:typed_data' show Uint8List;
 
 import 'package:test/test.dart';
-import 'package:thrift/src/transport/t_framed_transport.dart';
-import 'package:thrift/src/transport/t_socket_transport.dart';
 import 'package:thrift/thrift.dart';
 
 void main() {

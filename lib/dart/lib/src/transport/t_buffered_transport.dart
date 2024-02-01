@@ -15,9 +15,7 @@
 /// specific language governing permissions and limitations
 /// under the License.
 
-import 'dart:typed_data';
-import '../transport/t_transport.dart';
-import '../transport/t_transport_error.dart';
+part of thrift;
 
 /// Buffered implementation of [TTransport].
 class TBufferedTransport extends TTransport {

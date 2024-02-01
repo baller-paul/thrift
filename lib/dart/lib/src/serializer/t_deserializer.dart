@@ -15,15 +15,7 @@
 /// specific language governing permissions and limitations
 /// under the License.
 
-import "dart:convert";
-import "dart:typed_data";
-
-import "package:thrift/src/protocol/t_protocol_factory.dart";
-import "package:thrift/src/protocol/t_binary_protocol.dart";
-import "package:thrift/thrift.dart";
-import "../protocol/t_message.dart";
-import "../protocol/t_protocol.dart";
-import "../transport/t_buffered_transport.dart";
+part of thrift;
 
 class TDeserializer {
   final TMessage message = TMessage('Deserializer', TMessageType.ONEWAY, 1);

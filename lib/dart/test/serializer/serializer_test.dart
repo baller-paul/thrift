@@ -20,11 +20,7 @@
 library thrift.test.serializer.serializer_test;
 
 import 'package:test/test.dart';
-import 'package:thrift/src/protocol/t_binary_protocol.dart';
-import 'package:thrift/src/protocol/t_compact_protocol.dart';
-import 'package:thrift/src/protocol/t_json_protocol.dart';
-import 'package:thrift/src/serializer/t_deserializer.dart';
-import 'package:thrift/src/serializer/t_serializer.dart';
+import 'package:thrift/thrift.dart';
 import 'serializer_test_data.dart';
 
 void main() {

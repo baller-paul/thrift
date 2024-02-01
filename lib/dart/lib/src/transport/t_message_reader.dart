@@ -1,9 +1,4 @@
-import 'dart:typed_data';
-
-import 'package:thrift/src/protocol/t_message.dart';
-import 'package:thrift/src/protocol/t_protocol.dart';
-import 'package:thrift/src/protocol/t_protocol_factory.dart';
-import 'package:thrift/src/transport/t_transport.dart';
+part of thrift;
 
 /// Licensed to the Apache Software Foundation (ASF) under one
 /// or more contributor license agreements. See the NOTICE file
