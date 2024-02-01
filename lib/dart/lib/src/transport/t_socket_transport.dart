@@ -139,7 +139,7 @@ class TAsyncClientSocketTransport extends TSocketTransport {
     _completers[seqid] = completer;
 
     // if (responseTimeout != null) {
-    Future.delayed(responseTimeout ?? const Duration(seconds: 0), () {
+    Future.delayed(responseTimeout, () {
       var completer = _completers.remove(seqid);
       if (completer != null) {
         completer.completeError(
