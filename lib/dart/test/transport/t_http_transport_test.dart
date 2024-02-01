@@ -163,7 +163,8 @@ class FakeHttpClient implements Client {
       throw UnimplementedError();
 
   @override
-  Future<StreamedResponse> send(BaseRequest request) => throw UnimplementedError();
+  Future<StreamedResponse> send(BaseRequest request) =>
+      throw UnimplementedError();
 
   @override
   void close() => throw UnimplementedError();

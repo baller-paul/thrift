@@ -74,7 +74,7 @@ class TWebSocket implements TSocket {
     _socket.add(base64.encode(data));
   }
 
-  void _onMessage(dynamic message) {
+  void _onMessage(String message) {
     try {
       Uint8List data = Uint8List.fromList(base64.decode(message));
       _onMessageController.add(data);

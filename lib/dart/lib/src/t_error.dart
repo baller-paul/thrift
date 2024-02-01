@@ -18,7 +18,7 @@
 part of thrift;
 
 class TError extends Error {
-  final String? message;
+  final String message;
   final int type;
 
   TError(this.type, this.message);

@@ -88,9 +88,9 @@ class TApplicationError extends TError {
   write(TProtocol oprot) {
     oprot.writeStructBegin(_struct);
 
-    if (message != null && message!.isNotEmpty) {
+    if (message.isNotEmpty) {
       oprot.writeFieldBegin(_messageField);
-      oprot.writeString(message!);
+      oprot.writeString(message);
       oprot.writeFieldEnd();
     }
 
