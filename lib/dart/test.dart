@@ -1,8 +1,8 @@
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:thrift/gen-dart/test/lib/src/header.dart';
 import 'package:thrift/thrift.dart';
+import 'gen-dart/Ballers_Config/lib/Ballers_Config.dart';
 
 // To build the config classes:
 // > thrift -gen dart test.thrift
