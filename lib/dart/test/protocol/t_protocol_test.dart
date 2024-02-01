@@ -22,12 +22,6 @@ import 'dart:convert' show utf8;
 import 'dart:typed_data' show Uint8List;
 
 import 'package:test/test.dart';
-import 'package:thrift/src/protocol/t_binary_protocol.dart';
-import 'package:thrift/src/protocol/t_compact_protocol.dart';
-import 'package:thrift/src/protocol/t_json_protocol.dart';
-import 'package:thrift/src/protocol/t_message.dart';
-import 'package:thrift/src/protocol/t_protocol.dart';
-import 'package:thrift/src/transport/t_buffered_transport.dart';
 import 'package:thrift/thrift.dart';
 
 void main() {

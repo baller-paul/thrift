@@ -23,7 +23,6 @@ import 'dart:html' show CloseEvent, Event, MessageEvent, WebSocket;
 import 'dart:typed_data' show Uint8List;
 
 import 'package:thrift/thrift.dart';
-import "../transport/t_transport_error.dart";
 
 /// A [TSocket] backed by a [WebSocket] from dart:html
 class TWebSocket implements TSocket {

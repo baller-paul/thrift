@@ -15,16 +15,7 @@
 /// specific language governing permissions and limitations
 /// under the License.
 
-import 'dart:convert';
-import 'dart:typed_data';
-import 'dart:collection';
-
-import 'package:thrift/src/protocol/t_message.dart';
-import 'package:thrift/src/protocol/t_protocol.dart';
-import 'package:thrift/src/protocol/t_protocol_factory.dart';
-import 'package:thrift/src/transport/t_transport.dart';
-import 'package:thrift/thrift.dart';
-import 'package:fixnum/fixnum.dart';
+part of thrift;
 
 class TCompactProtocolFactory implements TProtocolFactory<TCompactProtocol> {
   TCompactProtocolFactory();

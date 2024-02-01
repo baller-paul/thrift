@@ -15,8 +15,7 @@
 /// specific language governing permissions and limitations
 /// under the License.
 
-import 'package:thrift/thrift.dart';
-import 'package:thrift/src/protocol/t_protocol.dart';
+part of thrift;
 
 class TApplicationErrorType {
   static const int UNKNOWN = 0;

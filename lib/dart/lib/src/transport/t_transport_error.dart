@@ -15,7 +15,7 @@
 /// specific language governing permissions and limitations
 /// under the License.
 
-import '../../thrift.dart';
+part of thrift;
 
 class TTransportErrorType {
   static const int UNKNOWN = 0;

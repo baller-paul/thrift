@@ -15,14 +15,7 @@
 /// specific language governing permissions and limitations
 /// under the License.
 
-import 'dart:convert';
-import 'dart:typed_data';
-
-import 'package:thrift/src/protocol/t_message.dart';
-import 'package:thrift/src/protocol/t_protocol.dart';
-import 'package:thrift/src/transport/t_transport.dart';
-import 'package:thrift/src/protocol/t_protocol_factory.dart';
-import 'package:thrift/thrift.dart';
+part of thrift;
 
 class TBinaryProtocolFactory implements TProtocolFactory<TBinaryProtocol> {
   final bool strictRead;

@@ -26,9 +26,9 @@ import 'package:tutorial/tutorial.dart';
 import 'package:thrift/thrift.dart';
 import 'package:thrift/thrift_console.dart';
 
-TProtocol? _protocol;
-TProcessor? _processor;
-WebSocket? _webSocket;
+late TProtocol _protocol;
+late TProcessor _processor;
+late WebSocket _webSocket;
 
 main(List<String> args) {
   Logger.root.level = Level.ALL;
@@ -93,13 +93,13 @@ Future _initProcessor(TSocket socket) async {
   transport.onIncomingMessage.listen(_processMessage);
   _processor = new CalculatorProcessor(new CalculatorServer());
   _protocol = new TBinaryProtocol(transport);
-  await _protocol?.transport.open();
+  await _protocol.transport.open();
 
   print('connected');
 }
 
 Future _processMessage(_) async {
-  _processor?.process(_protocol!, _protocol!);
+  _processor.process(_protocol, _protocol);
 }
 
 class CalculatorServer implements Calculator {
