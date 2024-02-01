@@ -19,6 +19,7 @@ library thrift.test.transport.t_socket_transport_test;
 
 import 'package:test/test.dart';
 import 'package:thrift/thrift.dart';
+
 /// Common transport tests
 void main() {
   group('TTransportFactory', () {
