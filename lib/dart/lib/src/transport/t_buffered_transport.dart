@@ -23,6 +23,10 @@ class TBufferedTransport extends TTransport {
   late Iterator<int> _readIterator;
   bool _hasReadData = false;
 
+  TBufferedTransport() {
+    reset(isOpen: true);
+  }
+
   Uint8List consumeWriteBuffer() {
     Uint8List buffer = Uint8List.fromList(_writeBuffer);
 
