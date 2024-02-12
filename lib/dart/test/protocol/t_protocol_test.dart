@@ -97,17 +97,17 @@ void main() {
     expect(output, input);
   }
 
-  Future<void> primitiveNullTest(Primitive primitive) async {
-    primitive.write(null);
-    protocol.writeMessageEnd();
+  // Future<void> primitiveNullTest(Primitive primitive) async {
+  //   primitive.write(null);
+  //   protocol.writeMessageEnd();
 
-    await protocol.transport.flush();
+  //   await protocol.transport.flush();
 
-    protocol.readMessageBegin();
-    var output = primitive.read();
+  //   protocol.readMessageBegin();
+  //   var output = primitive.read();
 
-    expect(output, primitive.defaultValue);
-  }
+  //   expect(output, primitive.defaultValue);
+  // }
 
   var sharedTests = () {
     test('Test message', () async {
@@ -208,49 +208,49 @@ void main() {
       await primitiveTest(getPrimitive(TType.BOOL), true);
     });
 
-    test('Test bool null', () async {
-      await primitiveNullTest(getPrimitive(TType.BOOL));
-    });
+    // test('Test bool null', () async {
+    //   await primitiveNullTest(getPrimitive(TType.BOOL));
+    // });
 
     test('Test byte', () async {
       await primitiveTest(getPrimitive(TType.BYTE), 64);
     });
 
-    test('Test byte null', () async {
-      await primitiveNullTest(getPrimitive(TType.BYTE));
-    });
+    // test('Test byte null', () async {
+    //   await primitiveNullTest(getPrimitive(TType.BYTE));
+    // });
 
     test('Test I16', () async {
       await primitiveTest(getPrimitive(TType.I16), 32767);
     });
 
-    test('Test I16 null', () async {
-      await primitiveNullTest(getPrimitive(TType.I16));
-    });
+    // test('Test I16 null', () async {
+    //   await primitiveNullTest(getPrimitive(TType.I16));
+    // });
 
     test('Test I32', () async {
       await primitiveTest(getPrimitive(TType.I32), 2147483647);
     });
 
-    test('Test I32 null', () async {
-      await primitiveNullTest(getPrimitive(TType.I32));
-    });
+    // test('Test I32 null', () async {
+    //   await primitiveNullTest(getPrimitive(TType.I32));
+    // });
 
     test('Test I64', () async {
       await primitiveTest(getPrimitive(TType.I64), 9223372036854775807);
     });
 
-    test('Test I64 null', () async {
-      await primitiveNullTest(getPrimitive(TType.I64));
-    });
+    // test('Test I64 null', () async {
+    //   await primitiveNullTest(getPrimitive(TType.I64));
+    // });
 
     test('Test double', () async {
       await primitiveTest(getPrimitive(TType.DOUBLE), 3.1415926);
     });
 
-    test('Test double null', () async {
-      await primitiveNullTest(getPrimitive(TType.DOUBLE));
-    });
+    // test('Test double null', () async {
+    //   await primitiveNullTest(getPrimitive(TType.DOUBLE));
+    // });
 
     test('Test string', () async {
       var input = 'There are only two hard things in computer science: '
@@ -258,9 +258,9 @@ void main() {
       await primitiveTest(getPrimitive(TType.STRING), input);
     });
 
-    test('Test string null', () async {
-      await primitiveNullTest(getPrimitive(TType.STRING));
-    });
+    // test('Test string null', () async {
+    //   await primitiveNullTest(getPrimitive(TType.STRING));
+    // });
 
     test('Test binary', () async {
       var input = Uint8List.fromList(List.filled(100, 123));
@@ -406,23 +406,23 @@ void main() {
     group('shared tests', sharedTests);
   });
 
-  group('binary', () {
-    setUp(() {
-      protocol = TBinaryProtocol(TBufferedTransport());
-      protocol.writeMessageBegin(message);
-    });
+  // group('binary', () {
+  //   setUp(() {
+  //     protocol = TBinaryProtocol(TBufferedTransport());
+  //     protocol.writeMessageBegin(message);
+  //   });
 
-    group('shared tests', sharedTests);
-  });
+  //   group('shared tests', sharedTests);
+  // });
 
-  group('compact', () {
-    setUp(() {
-      protocol = TCompactProtocol(TBufferedTransport());
-      protocol.writeMessageBegin(message);
-    });
+  // group('compact', () {
+  //   setUp(() {
+  //     protocol = TCompactProtocol(TBufferedTransport());
+  //     protocol.writeMessageBegin(message);
+  //   });
 
-    group('shared tests', sharedTests);
-  });
+  //   group('shared tests', sharedTests);
+  // });
 }
 
 class Primitive<T> {

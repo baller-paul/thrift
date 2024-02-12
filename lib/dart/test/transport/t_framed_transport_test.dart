@@ -24,7 +24,29 @@ import 'dart:typed_data' show Uint8List;
 import 'package:test/test.dart';
 import 'package:thrift/thrift.dart';
 
-void main() {
+Future<void> foo() async {
+  late FakeReadOnlySocket socket;
+  late TSocketTransport socketTransport;
+  late TFramedTransport transport;
+
+  socket = FakeReadOnlySocket();
+  socketTransport = TClientSocketTransport(socket);
+  transport = TFramedTransport(socketTransport);
+
+  // Paul here - seems like this should set the transport read iterator
+  socket.messageController.add(Uint8List.fromList([0x00, 0x00, 0x00, 0x06]));
+
+  var readBuffer = Uint8List(128);
+  var readBytes = await transport.read(readBuffer, 0, readBuffer.lengthInBytes);
+  expect(readBytes, 0);
+}
+
+// This test doesn't seem to work because the call
+// > socket.messageController.add
+// doesn't seem to set the transport read iterator
+void main() async {
+  await foo();
+
   group('TFramedTransport partial reads', () {
     final flushAwaitDuration = Duration(seconds: 10);
 
@@ -40,9 +62,10 @@ void main() {
       messageAvailable = false;
     });
 
-    void expectNoReadableBytes() {
+    Future<void> expectNoReadableBytes() async {
       var readBuffer = Uint8List(128);
-      var readBytes = transport.read(readBuffer, 0, readBuffer.lengthInBytes);
+      var readBytes =
+          await transport.read(readBuffer, 0, readBuffer.lengthInBytes);
       expect(readBytes, 0);
       expect(messageAvailable, false);
     }
@@ -61,19 +84,20 @@ void main() {
       });
 
       // write header bytes
+      // Paul here - seems like this should set the tranport read iterator
       socket.messageController
           .add(Uint8List.fromList([0x00, 0x00, 0x00, 0x06]));
 
       // you shouldn't be able to get any bytes from the read,
       // because the header has been consumed internally
-      expectNoReadableBytes();
+      await expectNoReadableBytes();
 
       // write first batch of body
       socket.messageController.add(Uint8List.fromList(utf8.encode("He")));
 
       // you shouldn't be able to get any bytes from the read,
       // because the frame has been consumed internally
-      expectNoReadableBytes();
+      await expectNoReadableBytes();
 
       // write second batch of body
       socket.messageController.add(Uint8List.fromList(utf8.encode("llo!")));
