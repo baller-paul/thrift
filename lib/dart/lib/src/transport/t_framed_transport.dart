@@ -35,6 +35,7 @@ class TFramedTransport extends TBufferedTransport {
   Completer<Uint8List>? _frameCompleter;
 
   TFramedTransport(TTransport transport) : _transport = transport {
+    reset(isOpen: true);
     // if (transport == null) {
     //   throw ArgumentError.notNull("transport");
     // }
@@ -62,6 +63,11 @@ class TFramedTransport extends TBufferedTransport {
       if (got > 0) return got;
     }
 
+    // read another frame of data (taken from the Java implementation)
+    // NOT taken from the dart 1 implementation
+    // NOT SURE IF THIS IS THE RIGHT WAY TO DO IT
+    await _readFrame();
+
     // IMPORTANT: by the time you've got here,
     // an entire frame is available for reading
 
@@ -76,7 +82,7 @@ class TFramedTransport extends TBufferedTransport {
       }
     }
 
-    _readFrameBody();
+    await _readFrameBody();
   }
 
   Future<bool> _readFrameHeader() async {
@@ -112,7 +118,7 @@ class TFramedTransport extends TBufferedTransport {
     }
   }
 
-  void _readFrameBody() async {
+  Future<void> _readFrameBody() async {
     var remainingBodyBytes = _bodySize - _receivedBodyBytes;
 
     int got =
