@@ -214,11 +214,11 @@ public:
                                          bool optional,
                                          std::string prefix = "");
 
-  void generate_serialize_field(std::ostream& out, t_field* tfield, std::string prefix = "");
+  void generate_serialize_field(std::ostream& out, t_field* tfield, bool optional, std::string prefix = "");
 
-  void generate_serialize_struct(std::ostream& out, t_struct* tstruct, std::string prefix = "", bool optional = false);
+  void generate_serialize_struct(std::ostream& out, t_struct* tstruct, bool optional, std::string prefix = "");
 
-  void generate_serialize_container(std::ostream& out, t_type* ttype, std::string prefix = "");
+  void generate_serialize_container(std::ostream& out, t_type* ttype, bool optional, std::string prefix = "");
 
   void generate_serialize_map_element(std::ostream& out,
                                       t_map* tmap,
@@ -1085,14 +1085,9 @@ void t_dart_generator::generate_dart_struct_writer(ostream& out, t_struct* tstru
 
   for (f_iter = fields.begin(); f_iter != fields.end(); ++f_iter) {
     string field_name = get_member_name((*f_iter)->get_name());
-    bool could_be_unset = (*f_iter)->get_req() == t_field::T_OPTIONAL;
-    if (could_be_unset) {
+    bool optional = (*f_iter)->get_req() == t_field::T_OPTIONAL;
+    if (optional) {
       indent(out) << "if (" << generate_isset_check(*f_iter) << ")";
-      scope_up(out);
-    }
-    bool null_allowed = type_can_be_null((*f_iter)->get_type());
-    if (null_allowed) {
-      indent(out) << "if (this." << field_name << " != null)";
       scope_up(out);
     }
 
@@ -1100,15 +1095,12 @@ void t_dart_generator::generate_dart_struct_writer(ostream& out, t_struct* tstru
                 << "_FIELD_DESC);" << endl;
 
     // Write field contents
-    generate_serialize_field(out, *f_iter, "this.");
+    generate_serialize_field(out, *f_iter, optional, "this.");
 
     // Write field closer
     indent(out) << "oprot.writeFieldEnd();" << endl;
 
-    if (null_allowed) {
-      scope_down(out);
-    }
-    if (could_be_unset) {
+    if (optional) {
       scope_down(out);
     }
   }
@@ -1152,7 +1144,7 @@ void t_dart_generator::generate_dart_struct_result_writer(ostream& out, t_struct
                 << "_FIELD_DESC);" << endl;
 
     // Write field contents
-    generate_serialize_field(out, *f_iter, "this.");
+    generate_serialize_field(out, *f_iter, false, "this.");
 
     // Write field closer
     indent(out) << "oprot.writeFieldEnd();" << endl;
@@ -1823,7 +1815,7 @@ void t_dart_generator::generate_deserialize_field(ostream& out, t_field* tfield,
  */
 void t_dart_generator::generate_deserialize_struct(ostream& out, t_struct* tstruct, bool optional, string prefix) {
   indent(out) << prefix << " = " << type_name(tstruct) << "();" << endl;
-  string optional_modifier = optional ? "?" : "";
+  string optional_modifier = optional ? "!" : "";
   indent(out) << prefix << optional_modifier << ".read(iprot);" << endl;
 }
 
@@ -1918,7 +1910,7 @@ void t_dart_generator::generate_deserialize_set_element(ostream& out, t_set* tse
 
   indent(out) << declare_field(&felem) << endl;
 
-  generate_deserialize_field(out, &felem, optional);
+  generate_deserialize_field(out, &felem, false);
 
   string optionalString = optional ? "?" : "";
 
@@ -1935,13 +1927,13 @@ void t_dart_generator::generate_deserialize_list_element(ostream& out,
   string elem = tmp("_elem");
   t_field felem(tlist->get_elem_type(), elem);
 
-  indent(out) << declare_field(&felem) << endl;
+  indent(out) << declare_field(&felem) << "//declare element for " << prefix << endl;
 
-  generate_deserialize_field(out, &felem, optional);
+  generate_deserialize_field(out, &felem, false);
 
   string optionalString = optional ? "?" : "";
 
-  indent(out) << prefix << optionalString << ".add(" << elem << ");" << endl;
+  indent(out) << prefix << optionalString << ".add(" << elem << ");" << "//add element to parent " << prefix << endl;
 }
 
 /**
@@ -1950,7 +1942,7 @@ void t_dart_generator::generate_deserialize_list_element(ostream& out,
  * @param tfield The field to serialize
  * @param prefix Name to prepend to field name
  */
-void t_dart_generator::generate_serialize_field(ostream& out, t_field* tfield, string prefix) {
+void t_dart_generator::generate_serialize_field(ostream& out, t_field* tfield, bool optional, string prefix) {
   t_type* type = get_true_type(tfield->get_type());
   string field_name = get_member_name(tfield->get_name());
 
@@ -1959,13 +1951,13 @@ void t_dart_generator::generate_serialize_field(ostream& out, t_field* tfield, s
     throw "CANNOT GENERATE SERIALIZE CODE FOR void TYPE: " + prefix + field_name;
   }
 
-  bool optional = (tfield->get_req() == t_field::T_OPTIONAL);
+  // bool optional = (tfield->get_req() == t_field::T_OPTIONAL);
   string optional_modifier = optional ? "!" : "";
 
   if (type->is_struct() || type->is_xception()) {
-    generate_serialize_struct(out, (t_struct*)type, prefix + field_name, optional);
+    generate_serialize_struct(out, (t_struct*)type, optional, prefix + field_name);
   } else if (type->is_container()) {
-    generate_serialize_container(out, type, prefix + field_name);
+    generate_serialize_container(out, type, optional, prefix + field_name);
   } else if (type->is_base_type() || type->is_enum()) {
 
     string name = prefix + field_name;
@@ -2023,7 +2015,7 @@ void t_dart_generator::generate_serialize_field(ostream& out, t_field* tfield, s
  * @param tstruct The struct to serialize
  * @param prefix  String prefix to attach to all fields
  */
-void t_dart_generator::generate_serialize_struct(ostream& out, t_struct* tstruct, string prefix, bool optional) {
+void t_dart_generator::generate_serialize_struct(ostream& out, t_struct* tstruct, bool optional, string prefix) {
   (void)tstruct;
   string optional_modifier = optional ? "?" : "";
   indent(out) << prefix << optional_modifier << ".write(oprot);" << endl;
@@ -2035,35 +2027,37 @@ void t_dart_generator::generate_serialize_struct(ostream& out, t_struct* tstruct
  * @param ttype  The type of container
  * @param prefix String prefix for fields
  */
-void t_dart_generator::generate_serialize_container(ostream& out, t_type* ttype, string prefix) {
+void t_dart_generator::generate_serialize_container(ostream& out, t_type* ttype, bool optional, string prefix) {
   indent(out);
   scope_up(out, "");
+
+  string optional_modifier = optional ? "!" : "";
 
   if (ttype->is_map()) {
     string iter = tmp("_key");
     indent(out) << "oprot.writeMapBegin(TMap(" << type_to_enum(((t_map*)ttype)->get_key_type())
-                << ", " << type_to_enum(((t_map*)ttype)->get_val_type()) << ", " << prefix << "!.length));"
+                << ", " << type_to_enum(((t_map*)ttype)->get_val_type()) << ", " << prefix << optional_modifier << ".length));"
                 << endl;
   } else if (ttype->is_set()) {
     indent(out) << "oprot.writeSetBegin(TSet(" << type_to_enum(((t_set*)ttype)->get_elem_type())
                 << ", " << prefix << "!.length));" << endl;
   } else if (ttype->is_list()) {
     indent(out) << "oprot.writeListBegin(TList("
-                << type_to_enum(((t_list*)ttype)->get_elem_type()) << ", " << prefix << "!.length));"
+                << type_to_enum(((t_list*)ttype)->get_elem_type()) << ", " << prefix << optional_modifier << ".length));"
                 << endl;
   }
 
   string iter = tmp("elem");
   if (ttype->is_map()) {
-    indent(out) << "for (var " << iter << " in " << prefix << "!.keys)";
+    indent(out) << "for (var " << iter << " in " << prefix << optional_modifier << ".keys)";
   } else if (ttype->is_set() || ttype->is_list()) {
-    indent(out) << "for (var " << iter << " in " << prefix << "!)";
+    indent(out) << "for (var " << iter << " in " << prefix << optional_modifier << ")";
   }
 
   scope_up(out);
 
   if (ttype->is_map()) {
-    generate_serialize_map_element(out, (t_map*)ttype, iter, prefix);
+    generate_serialize_map_element(out, (t_map*)ttype, iter, prefix + optional_modifier);
   } else if (ttype->is_set()) {
     generate_serialize_set_element(out, (t_set*)ttype, iter);
   } else if (ttype->is_list()) {
@@ -2090,10 +2084,13 @@ void t_dart_generator::generate_serialize_map_element(ostream& out,
                                                      t_map* tmap,
                                                      string iter,
                                                      string map) {
+  // indent(out) << "// map element start" << endl;
+  // string optional = (*iter)->get_req() == t_field::T_OPTIONAL ? "?" : "";
   t_field kfield(tmap->get_key_type(), iter);
-  generate_serialize_field(out, &kfield, "");
-  t_field vfield(tmap->get_val_type(), map + "![" + iter + "]!");
-  generate_serialize_field(out, &vfield, "");
+  generate_serialize_field(out, &kfield, false, "");
+  t_field vfield(tmap->get_val_type(), map + "[" + iter + "]!");
+  generate_serialize_field(out, &vfield, false, "");
+  // indent(out) << "// map element end" << endl;
 }
 
 /**
@@ -2101,7 +2098,7 @@ void t_dart_generator::generate_serialize_map_element(ostream& out,
  */
 void t_dart_generator::generate_serialize_set_element(ostream& out, t_set* tset, string iter) {
   t_field efield(tset->get_elem_type(), iter);
-  generate_serialize_field(out, &efield, "");
+  generate_serialize_field(out, &efield, false, "");
 }
 
 /**
@@ -2109,7 +2106,7 @@ void t_dart_generator::generate_serialize_set_element(ostream& out, t_set* tset,
  */
 void t_dart_generator::generate_serialize_list_element(ostream& out, t_list* tlist, string iter) {
   t_field efield(tlist->get_elem_type(), iter);
-  generate_serialize_field(out, &efield, "");
+  generate_serialize_field(out, &efield, false, "");
 }
 
 /**
