@@ -43,11 +43,11 @@ void main() {
       var expectedText = 'my request';
       transport.writeAll(utf8Codec.encode(expectedText));
 
-      expect(client.postRequest, isNull);
+      expect(client.postRequest, isEmpty);
 
       await transport.flush();
 
-      expect(client.postRequest, isNotNull);
+      expect(client.postRequest, isNotEmpty);
 
       var requestText = utf8Codec.decode(base64.decode(client.postRequest!));
       expect(requestText, expectedText);
@@ -111,8 +111,8 @@ void main() {
 }
 
 class FakeHttpClient implements Client {
-  String? postResponse;
-  String? postRequest;
+  String postResponse = "";
+  String postRequest = "";
 
   final bool sync;
 
@@ -121,8 +121,8 @@ class FakeHttpClient implements Client {
   @override
   Future<Response> post(url,
       {Map<String, String>? headers, body, Encoding? encoding}) {
-    postRequest = body as String?;
-    var response = Response(postResponse!, 200);
+    postRequest = body.toString();
+    var response = Response(postResponse, 200);
 
     if (sync) {
       return Future.sync(() => response);
